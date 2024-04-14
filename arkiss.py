@@ -1,9 +1,44 @@
 import inquirer
-from getpass import getpass
 from pypsexec.client import Client
 
+print("""
+   ▄████████    ▄████████    ▄█   ▄█▄  ▄█     ▄████████    ▄████████                  
+  ███    ███   ███    ███   ███ ▄███▀ ███    ███    ███   ███    ███                  
+  ███    ███   ███    ███   ███▐██▀   ███▌   ███    █▀    ███    █▀                   
+  ███    ███  ▄███▄▄▄▄██▀  ▄█████▀    ███▌   ███          ███                         
+▀███████████ ▀▀███▀▀▀▀▀   ▀▀█████▄    ███▌ ▀███████████ ▀███████████                  
+  ███    ███ ▀███████████   ███▐██▄   ███           ███          ███                  
+  ███    ███   ███    ███   ███ ▀███▄ ███     ▄█    ███    ▄█    ███                  
+  ███    █▀    ███    ███   ███   ▀█▀ █▀    ▄████████▀   ▄████████▀                   
+               ███    ███   ▀                                                         
+""")
 
-def con(command):
+############################ GLOBALS ############################
+global username
+global password
+global hostname
+global ipfile
+global method
+############################ GLOBALS ############################
+
+#Automatic generation of choices menu
+def MenuChoiceGen(choicelist, message, functionlist):
+
+    questions = [
+        inquirer.List('choicelist',
+                      message=message,
+                      choices=choicelist
+                      ),
+    ]
+    answers = inquirer.prompt(questions)
+    i=0
+    while i < len(choicelist):
+        if answers['choicelist'] == i:
+            return(functionlist[i])
+        i+=1
+
+#Connection to windows and command casting function
+def Con(command):
     c = Client(hostname, username=username, password=password, encrypt=False)
     c.connect()
     try:
@@ -12,28 +47,28 @@ def con(command):
         decoded_output = stdout.decode('ISO-8859-1')
         print(decoded_output)
     except Exception as e:
-        print(f"Une erreur s'est produite: {e}")
+        print(f"An error occured: {e}")
     finally:
         c.remove_service()
         c.disconnect()
 
-
-def option1():
+#work in progress
+def Deployelk():
     print("Déploiement du cluster elasticsearch")
 
-
-def option2():
+#work in progress
+def Winaudit():
     print("Test d'audit windows")
 
-
-def option3():
+#work in progress
+def Winauditrem():
     print("remediation")
 
-
-def option4():
+#Missing update checker
+def Chkwinupdate():
     print("mise à jour manquantes")
     command="Get-WindowsUpdate"
-    con(command)
+    Con(command)
     questions = [
         inquirer.List('continuer',
                         message="Voulez-vous mettre à jour ?",
@@ -45,170 +80,115 @@ def option4():
     if answers['continuer'] == 'Oui':
         command="Install - WindowsUpdate - AcceptAll"
         print("Mise à jour en cours...")
-        con(command)
+        Con(command)
     else:
         None
 
-
-
-
-def option5():
-    questions = [
-        inquirer.List("options",
-                      message="quel outils souhaitez vous utiliser",
-                      choices=["Scan de l'image windows",
-                               "Gestion du chiffrement bitlocker",
-                               "Gestion du bureau à distance",
-                               "Gestion de l'invite de commande",
-                               "Desactivation du compte administrateur",
-                               "Forcer l'authentification en sortie de veille",
-                               "Retour au menu principal"],
-                      ),
-    ]
-
-    answers = inquirer.prompt(questions)
-    if answers['options'] == "quel outils souhaitez vous utiliser":
-        option51()
-    elif answers['options'] == "Scan de l'image windows":
-        option52()
-    elif answers['options'] == "Gestion du chiffrement bitlocker":
-        option53()
-    elif answers['options'] == "Gestion du bureau à distance":
-        option54()
-    elif answers['options'] == "Gestion de l'invite de commande":
-        option55()
-    elif answers['options'] == 'Desactivation du compte administrateur':
-        option56()
-    elif answers['options'] == "Forcer l'authentification en sortie de veille":
-        option57()
-    elif answers['options'] == "Retour au menu principal":
-        menu()
-
-
-def option51():
-    print("Work in progress..")
-
-
-def option52():
-    print("Work in progress..")
-
-
-def option53():
-    print("Work in progress..")
-
-
-def option54():
-    print("Work in progress..")
-    c = Client("192.168.56.140", username="administrateur", password="toto", encrypt=False)
-
-    # Connexion à la machine distante
-    c.connect()
-
-    try:
-        c.create_service()
-        questions = [
-            inquirer.List('Activation/Desactivation',
-                          message="Que souhaitez vous faire ?",
-                          choices=['Activer', 'Désactiver'],
-                          ),
-        ]
-
-        answers = inquirer.prompt(questions)
-
-        if answers['Activation/Desactivation'] == 'Désactiver':
-            print("Désactivation en cours...")
-            stdout, stderr, rc = c.run_executable("powershell.exe",
-                                                  arguments="""Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 1 """)
-            decoded_output = stdout.decode('ISO-8859-1')
-            print(decoded_output)
-        elif answers['Activation/Desactivation'] == 'Activer':
-            print("Activation en cours...")
-            stdout, stderr, rc = c.run_executable("powershell.exe",
-                                                  arguments="""Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0 """)
-            decoded_output = stdout.decode('ISO-8859-1')
-            print(decoded_output)
-    except Exception as e:
-        print(f"Une erreur s'est produite: {e}")
-
-    finally:
-        c.remove_service()
-        c.disconnect()
-
-
-def option55():
-    print("Work in progress..")
-
-
-def option56():
-    print("Work in progress..")
-
-
-def option57():
-    print("Work in progress..")
-
-
-def quitter():
-    print("Merci d'avoir utilisé Arkiss ;)")
+#Function to print a message when you leave
+def Leave():
+    print("Thank you for using Arkiss :3")
     return False
 
+def Winimscan():
+    print("Work in progress..")
 
-def menu():
-    print("""
+def BitlockManage():
+    print("Work in progress..")
 
-   ▄████████    ▄████████    ▄█   ▄█▄  ▄█     ▄████████    ▄████████                  
-  ███    ███   ███    ███   ███ ▄███▀ ███    ███    ███   ███    ███                  
-  ███    ███   ███    ███   ███▐██▀   ███▌   ███    █▀    ███    █▀                   
-  ███    ███  ▄███▄▄▄▄██▀  ▄█████▀    ███▌   ███          ███                         
-▀███████████ ▀▀███▀▀▀▀▀   ▀▀█████▄    ███▌ ▀███████████ ▀███████████                  
-  ███    ███ ▀███████████   ███▐██▄   ███           ███          ███                  
-  ███    ███   ███    ███   ███ ▀███▄ ███     ▄█    ███    ▄█    ███                  
-  ███    █▀    ███    ███   ███   ▀█▀ █▀    ▄████████▀   ▄████████▀                   
-               ███    ███   ▀                                                         
-████████▄     ▄████████    ▄████████    ▄████████ ███▄▄▄▄      ▄████████    ▄████████ 
-███   ▀███   ███    ███   ███    ███   ███    ███ ███▀▀▀██▄   ███    ███   ███    ███ 
-███    ███   ███    █▀    ███    █▀    ███    █▀  ███   ███   ███    █▀    ███    █▀  
-███    ███  ▄███▄▄▄      ▄███▄▄▄      ▄███▄▄▄     ███   ███   ███         ▄███▄▄▄     
-███    ███ ▀▀███▀▀▀     ▀▀███▀▀▀     ▀▀███▀▀▀     ███   ███ ▀███████████ ▀▀███▀▀▀     
-███    ███   ███    █▄    ███          ███    █▄  ███   ███          ███   ███    █▄  
-███   ▄███   ███    ███   ███          ███    ███ ███   ███    ▄█    ███   ███    ███ 
-████████▀    ██████████   ███          ██████████  ▀█   █▀   ▄████████▀    ██████████ 
+def RDPManage():
 
-
- """)
-    questions = [
-        inquirer.List('options',
-                      message="Veuillez choisir une option",
-                      choices=["Déploiement du cluster elasticsearch",
-                               "Test d'audit windows",
-                               "remediation",
-                               "mise à jour manquantes",
-                               "Divers",
-                               'Quitter'],
-                      ),
+    disable="""Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 1 """
+    enable="""Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0 """
+    message = "what should we do ?"
+    choicelist = [
+        ("Enable",0),
+        ("Disable",1)
+        ]
+    functionlist = [
+        "Enable",
+        "Disable"
     ]
+    choice = MenuChoiceGen(choicelist,message,functionlist)
+    if choice == "Disable":
+        print("Disabling...")
+        Con(disable)
+    elif choice == "Enable":
+        print("Enabling...")
+        Con(enable)
+    return
 
+def CMDManage():
+    print("Work in progress..")
+
+def AdminManage():
+    print("Work in progress..")
+
+def AuthSleepMode():
+    print("Work in progress..")
+
+#Secondary menu for additional tools
+def Divers():
+    message="[ Divers Menu ] - Please chose an option"
+    mainmenu=[
+        ("Windows image scan",0),
+        ("Bitlocker crypting management",1),
+        ("Remote Desktop Protocol management",2),
+        ("Command Line management",3),
+        ("Local Admin User management",4),
+        ("Force authentication after sleep mode",5),
+        ("Back to Main menu", 6)
+    ]
+    functionlist=[
+        "Winimscan()",
+        "BitlockManage()",
+        "RDPManage()",
+        "CMDManage()",
+        "AdminManage()",
+        "AuthSleepMode()",
+        "return"
+    ]
+    function = MenuChoiceGen(mainmenu,message,functionlist)
+    if function == "return":
+        return
+    else:
+        eval(function)
+
+def main():
     while True:
-        answers = inquirer.prompt(questions)
-        if answers['options'] == "Déploiement du cluster elasticsearch":
-            option1()
-        elif answers['options'] == "Test d'audit windows":
-            option2()
-        elif answers['options'] == "remediation":
-            option3()
-        elif answers['options'] == "mise à jour manquantes":
-            option4()
-        elif answers['options'] == "Divers":
-            option5()
-        elif answers['options'] == 'Quitter':
-            if not quitter():
-                break
+        message="[Main Menu - Please chose an option"
+        mainmenu=[
+            ("Deploy Elastic Cluster",0),
+            ("Windows Security Check",1),
+            ("Remediation",2),
+            ("Check Windows Missing Updates",3),
+            ("Additional tools",4),
+            ("Leave",5)
+        ]
+        functionlist=[
+            "Deployelk()",
+            "Winaudit()",
+            "Winauditrem()",
+            "Chkwinupdate()",
+            "Divers()",
+            "Leave()"
+        ]
+        function = MenuChoiceGen(mainmenu,message,functionlist)
+        eval(function)
 
-global username
-global password
-global hostname
+############################# SETUP #############################
+username = inquirer.text(message="Enter your username")
+password = inquirer.password(message='Please enter your password')
+ipfile = "Hosts"
+menu = [
+    inquirer.List("ip", message="Single IP or IP file?", choices=[("Single IP", 0), ("IP File", 1)], default=1),
+]
+method = inquirer.prompt(menu)['ip']
+if method == 0:
+    hostname = inquirer.text(message="Enter the hostname/IP to use")
+else:
+    None
+############################# SETUP #############################
 
-username = input("Veuillez entrer le nom d'utilisateur : ")
-password = input("Veuillez entrer le mot de passe : ")
-hostname = input("Veuillez entrer l'adresse IP de la machine : ")
-# Appeler la fonction menu pour démarrer le programme
-menu()
+# Call the main function to display the menu
+main()
+
