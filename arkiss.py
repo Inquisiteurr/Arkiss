@@ -1,6 +1,7 @@
 import inquirer
 from pypsexec.client import Client
 import os
+import ipaddress
 
 ############################ GLOBALS ############################
 global username
@@ -31,16 +32,24 @@ def Cred():
     password = inquirer.password(message='Please enter your password')
     return
 
+#Function to verify ip adress inside ip adress file
+def read_and_validate_ip_file(file_path):
+    with open(file_path, 'r') as file:
+        ip_list = [line.strip() for line in file]
+    valid_ip_list = []
+    for i, ip in enumerate(ip_list):
+        try:
+            ipaddress.ip_address(ip)
+            valid_ip_list.append((ip, i))
+        except ValueError:
+            print(f"L'adresse IP {ip} n'est pas valide.")
+    return valid_ip_list
+
 #Automatic generation of choices menu
 def MenuChoiceGen(choicelist, message, functionlist):
     os.system('clear')
     print(arkiss)
-    questions = [
-        inquirer.List('choicelist',
-                      message=message,
-                      choices=choicelist
-                      ),
-    ]
+    questions = [inquirer.List('choicelist',message=message,choices=choicelist),]
     answers = inquirer.prompt(questions)
     i=0
     while i < len(choicelist):
@@ -66,50 +75,109 @@ def Host(force=1):
         pass
     return
 
+#command casting function
 def Wincon(command, ip):
+    success = None
+    failed = None
     c = Client(ip, username=username, password=password, encrypt=False)
     c.connect()
     try:
         c.create_service()
         stdout, stderr, rc = c.run_executable("powershell.exe", arguments=command)
         decoded_output = stdout.decode('ISO-8859-1')
-        print(decoded_output)
+        print(f"{ip}\t\033[92mSuccess\033[0m")  # \033[92m and \033[0m are used to print the text in green color
+        success = (ip,decoded_output)
     except Exception as e:
-        print(f"An error occured: {e}")
+        print(f"{ip}\t\033[91mFailed\033[0m")  # \033[91m and \033[0m are used to print the text in red color
+        failed = (ip, str(e))
     finally:
         c.remove_service()
         c.disconnect()
-    return
+    return success, failed
 
-#Connection to windows and command casting function
+#function to fill list for debugging function of death
+def Getlists(command, ip, successlist, failedlist):
+    success, failed = Wincon(command, ip)
+    if success is not None:
+        successlist.append(success)
+    if failed is not None:
+        failedlist.append(failed)
+    return successlist, failedlist
+
+#Connection to windows method check
 def Conchoice(command):
+    successlist = []
+    failedlist = []
+
     if method == 1:
         message = "[ Single IP or IP file? ] - Are you sure to deploy this command on every IP ?"
-        choicelist = [
-            ("yes",0),
-            ("Change to Single IP",1),
-            ("Back", 2)
-            ]
-        functionlist = [
-            "0",
-            "1",
-            "return"
-        ]
+        choicelist = [("yes",0),("Change to Single IP",1),("Back", 2)]
+        functionlist = ["0","1","return"]
         choice = MenuChoiceGen(choicelist,message,functionlist)
         if choice == "0":
-            with open('Hosts' 'r') as file:
-                for line in file:
-                    Wincon(command, line)
-                return
+            iplist = read_and_validate_ip_file(ipfile)
+            for ip,i in iplist:
+                successlist, failedlist = Getlists(command, ip, successlist, failedlist)
+
+                    
         elif choice == "1":
             Host(0)
-            pass
+            ip = hostname
+            successlist, failedlist = Getlists(command, ip, successlist, failedlist)
         else:
-            return
+            return 0,0
     else:
-        pass
+        ip = hostname
+        successlist, failedlist = Getlists(command, ip, successlist, failedlist)
     
-    Wincon(command, hostname)
+    return successlist, failedlist
+
+#Debuging function of death
+def Getdebug(successlist, failedlist):
+    message="[ Debug menu ] - Do you want to see the result of the command ?"
+    choicelist=[("Yes",0),("No",1)]
+    answerlist=[1,2]
+    checkdebug = MenuChoiceGen(choicelist,message,answerlist)
+    if checkdebug == 0:
+        successlistdebug = [i for ip, i in successlist]
+        failedlistdebug = [i for ip, i in failedlist]
+        successcount = successlistdebug.count()
+        failedcount = failedlistdebug.count()
+        while True:
+            message="[ Debug menu ] - Please chose an option"
+            choicelist=[(f"Success({successcount})",0),(f"Failed({failedcount})",1),("Continue",2)]
+            answerlist=[0,1,2]
+            checkoption = MenuChoiceGen(choicelist,message,answerlist)
+            if checkoption == 0:
+                while True:
+                    menu=" [ Success results ] - Please chose an ip to see the results"
+                    successlistmenu = successlist
+                    successlistdebugprint = successlistdebug              
+                    successlistmenu.append("Back to Debug menu")
+                    successlistdebugprint.append("return")
+                    successoption = MenuChoiceGen(successlistmenu,menu,successlistdebugprint)
+                    if menu == "return":
+                        break
+                    else:
+                        print(menu)
+
+            elif checkoption == 1:
+                while True:
+                    menu=" [ Failed results ] - Please chose an ip to see the results"
+                    failedlistmenu = failedlist
+                    failedlistdebugprint = failedlistdebug
+                    failedlistmenu.append("Back to Debug menu")
+                    failedlistdebugprint.append("return")
+                    failedoption = MenuChoiceGen(failedlistmenu,menu,failedlistdebugprint)
+                    if menu == "return":
+                        break
+                    else:
+                        print(menu)
+
+            else:
+                return
+    else:
+        return
     return
 
 #work in progress
@@ -126,25 +194,31 @@ def Winauditrem():
 
 #Missing update checker
 def Chkwinupdate():
-    print("Missing updates:")
     command="Get-WindowsUpdate"
-    Conchoice(command)
-    message="[ Windows update ] - Launch Updates ?"
-    mainmenu=[
-        ("Yes",0),
-        ("No",1)
-    ]
-    choicelist=[
-        "Yes",
-        "No"
-    ]
-    choice = MenuChoiceGen(mainmenu,message,choicelist)
-    if choice == "No":
-        pass
+    successlist, failedlist = Conchoice(command)
+    if successlist == 0:
+        return
     else:
-        command="Install - WindowsUpdate - AcceptAll"
-        print("Updating...")
-        Conchoice(command)
+        Getdebug(successlist, failedlist)
+        message="[ Windows update ] - Launch Updates ?"
+        mainmenu=[
+            ("Yes",0),
+            ("No",1)
+        ]
+        choicelist=[
+            "Yes",
+            "No"
+        ]
+        choice = MenuChoiceGen(mainmenu,message,choicelist)
+        if choice == "No":
+            return
+        else:
+            command="Install - WindowsUpdate - AcceptAll"
+            successlist, failedlist = Conchoice(command)
+            if successlist == 0:
+                return
+            else:
+                Getdebug(successlist, failedlist)
     return
 
 #Function to print a message when you leave
@@ -175,13 +249,19 @@ def RDPManage():
     choice = MenuChoiceGen(choicelist,message,functionlist)
     command = registrykey + choice
     if choice == "1":
-        print("Disabling...")
-        Conchoice(command)
+        successlist, failedlist = Conchoice(command)
+        if successlist == 0:
+            return
+        else:
+            Getdebug(successlist, failedlist)
     elif choice == "0":
-        print("Enabling...")
-        Conchoice(command)
+        successlist, failedlist = Conchoice(command)
+        if successlist == 0:
+            return
+        else:
+            Getdebug(successlist, failedlist)
     else:
-        pass
+        return
     return
 
 def CMDManage():
@@ -203,15 +283,27 @@ def CMDManage():
     command = registrykey + choice
     if choice == "0":
         print("Enabling CMD and Bash exec...")
-        Conchoice(command)
+        successlist, failedlist = Conchoice(command)
+        if successlist == 0:
+            return
+        else:
+            Getdebug(successlist, failedlist)
     elif choice == "1":
         print("Disabling CMD but Allowing Bash exec...")
-        Conchoice(command)
+        successlist, failedlist = Conchoice(command)
+        if successlist == 0:
+            return
+        else:
+            Getdebug(successlist, failedlist)
     elif choice == "2":
         print("Disabling CMD and Bash exec...")
-        Conchoice(command)
+        successlist, failedlist = Conchoice(command)
+        if successlist == 0:
+            return
+        else:
+            Getdebug(successlist, failedlist)
     else:
-        pass
+        return
     return
 
 def AdminManage():
@@ -222,31 +314,33 @@ def AuthSleepMode():
 
 #Secondary menu for additional tools
 def Divers():
-    message="[ Divers Menu ] - Please chose an option"
-    mainmenu=[
-        ("Windows image scan",0),
-        ("Bitlocker crypting management",1),
-        ("Remote Desktop Protocol management",2),
-        ("Command Line management",3),
-        ("Local Admin User management",4),
-        ("Force authentication after sleep mode",5),
-        ("Back to Main menu", 6)
-    ]
-    functionlist=[
-        "Winimscan()",
-        "BitlockManage()",
-        "RDPManage()",
-        "CMDManage()",
-        "AdminManage()",
-        "AuthSleepMode()",
-        "return"
-    ]
-    function = MenuChoiceGen(mainmenu,message,functionlist)
-    if function == "return":
-        return
-    else:
-        eval(function)
+    while True:
+        message="[ Divers Menu ] - Please chose an option"
+        mainmenu=[
+            ("Windows image scan",0),
+            ("Bitlocker crypting management",1),
+            ("Remote Desktop Protocol management",2),
+            ("Command Line management",3),
+            ("Local Admin User management",4),
+            ("Force authentication after sleep mode",5),
+            ("Back to Main menu", 6)
+        ]
+        functionlist=[
+            "Winimscan()",
+            "BitlockManage()",
+            "RDPManage()",
+            "CMDManage()",
+            "AdminManage()",
+            "AuthSleepMode()",
+            "return"
+        ]
+        function = MenuChoiceGen(mainmenu,message,functionlist)
+        if function == "return":
+            return
+        else:
+            eval(function)
 
+#setting function
 def Settings():
         message="[ Settings ] - Please chose an option"
         mainmenu=[
@@ -264,6 +358,7 @@ def Settings():
         else:
             eval(function)
 
+#main function
 def main():
     print(arkiss)
     Cred()
