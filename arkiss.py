@@ -80,9 +80,8 @@ def Wincon(command, ip):
         c.disconnect()
     return
 
-
 #Connection to windows and command casting function
-def Con(command):
+def Conchoice(command):
     if method == 1:
         message = "[ Single IP or IP file? ] - Are you sure to deploy this command on every IP ?"
         choicelist = [
@@ -112,7 +111,6 @@ def Con(command):
     Wincon(command, hostname)
     return
 
-
 #work in progress
 def Deployelk():
     print("Déploiement du cluster elasticsearch")
@@ -129,7 +127,7 @@ def Winauditrem():
 def Chkwinupdate():
     print("Missing updates:")
     command="Get-WindowsUpdate"
-    Con(command)
+    Conchoice(command)
     message="[ Windows update ] - Launch Updates ?"
     mainmenu=[
         ("Yes",0),
@@ -145,7 +143,7 @@ def Chkwinupdate():
     else:
         command="Install - WindowsUpdate - AcceptAll"
         print("Updating...")
-        Con(command)
+        Conchoice(command)
     return
 
 #Function to print a message when you leave
@@ -177,10 +175,10 @@ def RDPManage():
     command = registrykey + choice
     if choice == "1":
         print("Disabling...")
-        Con(command)
+        Conchoice(command)
     elif choice == "0":
         print("Enabling...")
-        Con(command)
+        Conchoice(command)
     else:
         pass
     return
@@ -204,13 +202,13 @@ def CMDManage():
     command = registrykey + choice
     if choice == "0":
         print("Enabling CMD and Bash exec...")
-        Con(command)
+        Conchoice(command)
     elif choice == "1":
         print("Disabling CMD but Allowing Bash exec...")
-        Con(command)
+        Conchoice(command)
     elif choice == "2":
         print("Disabling CMD and Bash exec...")
-        Con(command)
+        Conchoice(command)
     else:
         pass
     return
