@@ -51,6 +51,7 @@ def MenuChoiceGen(choicelist, message, functionlist):
 #define the deployment method "ip file" or "single ip"
 def Host(force=1):
     if force == 0:
+            method = 0
             hostname = inquirer.text(message="Enter the hostname/IP to use")
             return
     else:
