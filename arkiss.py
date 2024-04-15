@@ -49,20 +49,24 @@ def MenuChoiceGen(choicelist, message, functionlist):
         i+=1
 
 #define the deployment method "ip file" or "single ip"
-def Host():
-        message="[ Single IP or IP file?  ] - Please chose an option"
-        mainmenu=[("Single IP",0),("IP file",1)]
-        choicelist1=[0,1]
-        method = MenuChoiceGen(mainmenu,message,choicelist1)
-        if method == 0:
+def Host(force=1):
+    if force == 0:
             hostname = inquirer.text(message="Enter the hostname/IP to use")
-        else:
-            pass
-        return
-        
-#Connection to windows and command casting function
-def Con(command):
-    c = Client(hostname, username=username, password=password, encrypt=False)
+            return
+    else:
+        pass
+    message="[ Single IP or IP file?  ] - Please chose an option"
+    mainmenu=[("Single IP",0),("IP file",1)]
+    choicelist1=[0,1]
+    method = MenuChoiceGen(mainmenu,message,choicelist1)
+    if method == 0:
+        hostname = inquirer.text(message="Enter the hostname/IP to use")
+    else:
+        pass
+    return
+
+def Wincon(command, ip):
+    c = Client(ip, username=username, password=password, encrypt=False)
     c.connect()
     try:
         c.create_service()
@@ -74,7 +78,40 @@ def Con(command):
     finally:
         c.remove_service()
         c.disconnect()
-        return decoded_output
+    return
+
+
+#Connection to windows and command casting function
+def Con(command):
+    if method == 1:
+        message = "[ Single IP or IP file? ] - Are you sure to deploy this command on every IP ?"
+        choicelist = [
+            ("yes",0),
+            ("Change to Single IP",1),
+            ("Back", 2)
+            ]
+        functionlist = [
+            "0",
+            "1",
+            "return"
+        ]
+        choice = MenuChoiceGen(choicelist,message,functionlist)
+        if choice == "0":
+            with open('Hosts' 'r') as file:
+                for line in file:
+                    Wincon(command, line)
+                return
+        elif choice == "1":
+            Host(0)
+            pass
+        else:
+            return
+    else:
+        pass
+    
+    Wincon(command, hostname)
+    return
+
 
 #work in progress
 def Deployelk():
