@@ -1,7 +1,19 @@
 import inquirer
 from pypsexec.client import Client
+import os
 
-print("""
+############################ GLOBALS ############################
+global username
+global password
+global hostname
+global ipfile
+global method
+global arkiss
+############################ GLOBALS ############################
+
+ipfile = "Hosts"
+
+arkiss = """
    ▄████████    ▄████████    ▄█   ▄█▄  ▄█     ▄████████    ▄████████                  
   ███    ███   ███    ███   ███ ▄███▀ ███    ███    ███   ███    ███                  
   ███    ███   ███    ███   ███▐██▀   ███▌   ███    █▀    ███    █▀                   
@@ -11,19 +23,18 @@ print("""
   ███    ███   ███    ███   ███ ▀███▄ ███     ▄█    ███    ▄█    ███                  
   ███    █▀    ███    ███   ███   ▀█▀ █▀    ▄████████▀   ▄████████▀                   
                ███    ███   ▀                                                         
-""")
+"""
 
-############################ GLOBALS ############################
-global username
-global password
-global hostname
-global ipfile
-global method
-############################ GLOBALS ############################
+#Define the credentials used for deployment
+def Cred():
+    username = inquirer.text(message="Enter your username")
+    password = inquirer.password(message='Please enter your password')
+    return
 
 #Automatic generation of choices menu
 def MenuChoiceGen(choicelist, message, functionlist):
-
+    os.system('clear')
+    print(arkiss)
     questions = [
         inquirer.List('choicelist',
                       message=message,
@@ -37,6 +48,18 @@ def MenuChoiceGen(choicelist, message, functionlist):
             return(functionlist[i])
         i+=1
 
+#define the deployment method "ip file" or "single ip"
+def Host():
+        message="[ Single IP or IP file?  ] - Please chose an option"
+        mainmenu=[("Single IP",0),("IP file",1)]
+        choicelist1=[0,1]
+        method = MenuChoiceGen(mainmenu,message,choicelist1)
+        if method == 0:
+            hostname = inquirer.text(message="Enter the hostname/IP to use")
+        else:
+            pass
+        return
+        
 #Connection to windows and command casting function
 def Con(command):
     c = Client(hostname, username=username, password=password, encrypt=False)
@@ -51,6 +74,7 @@ def Con(command):
     finally:
         c.remove_service()
         c.disconnect()
+        return decoded_output
 
 #work in progress
 def Deployelk():
@@ -66,23 +90,26 @@ def Winauditrem():
 
 #Missing update checker
 def Chkwinupdate():
-    print("mise à jour manquantes")
+    print("Missing updates:")
     command="Get-WindowsUpdate"
     Con(command)
-    questions = [
-        inquirer.List('continuer',
-                        message="Voulez-vous mettre à jour ?",
-                        choices=['Oui', 'Non'],
-                    ),
+    message="[ Windows update ] - Launch Updates ?"
+    mainmenu=[
+        ("Yes",0),
+        ("No",1)
     ]
-    answers = inquirer.prompt(questions)
-
-    if answers['continuer'] == 'Oui':
-        command="Install - WindowsUpdate - AcceptAll"
-        print("Mise à jour en cours...")
-        Con(command)
+    choicelist=[
+        "Yes",
+        "No"
+    ]
+    choice = MenuChoiceGen(mainmenu,message,choicelist)
+    if choice == "No":
+        pass
     else:
-        None
+        command="Install - WindowsUpdate - AcceptAll"
+        print("Updating...")
+        Con(command)
+    return
 
 #Function to print a message when you leave
 def Leave():
@@ -153,16 +180,37 @@ def Divers():
     else:
         eval(function)
 
+def Settings():
+        message="[ Settings ] - Please chose an option"
+        mainmenu=[
+            ("Change Credentials",0),
+            ("Change Host",1),
+            ("Back to Main menu",2)
+        ]
+        functionlist=[
+            "Cred()",
+            "Host()",
+            "return"
+        ]
+        if function == "return":
+            return
+        else:
+            eval(function)
+
 def main():
+    print(arkiss)
+    Cred()
+    Host()
     while True:
-        message="[Main Menu - Please chose an option"
+        message="[ Main Menu ] - Please chose an option"
         mainmenu=[
             ("Deploy Elastic Cluster",0),
             ("Windows Security Check",1),
             ("Remediation",2),
             ("Check Windows Missing Updates",3),
             ("Additional tools",4),
-            ("Leave",5)
+            ("Settings",5),
+            ("Leave",6)
         ]
         functionlist=[
             "Deployelk()",
@@ -170,25 +218,11 @@ def main():
             "Winauditrem()",
             "Chkwinupdate()",
             "Divers()",
+            "Settings()",
             "Leave()"
         ]
         function = MenuChoiceGen(mainmenu,message,functionlist)
         eval(function)
 
-############################# SETUP #############################
-username = inquirer.text(message="Enter your username")
-password = inquirer.password(message='Please enter your password')
-ipfile = "Hosts"
-menu = [
-    inquirer.List("ip", message="Single IP or IP file?", choices=[("Single IP", 0), ("IP File", 1)], default=1),
-]
-method = inquirer.prompt(menu)['ip']
-if method == 0:
-    hostname = inquirer.text(message="Enter the hostname/IP to use")
-else:
-    None
-############################# SETUP #############################
-
 # Call the main function to display the menu
 main()
-
