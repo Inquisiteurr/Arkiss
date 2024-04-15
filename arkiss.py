@@ -122,30 +122,61 @@ def Winimscan():
 def BitlockManage():
     print("Work in progress..")
 
+#Function to manage Remote Desktop Protocol on windows machine
 def RDPManage():
-
-    disable="""Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 1 """
-    enable="""Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0 """
-    message = "what should we do ?"
+    registrykey = "Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value "
+    message = "[ RDP Management ] - what should we do ?"
     choicelist = [
         ("Enable",0),
-        ("Disable",1)
+        ("Disable",1),
+        ("Back", 2)
         ]
     functionlist = [
-        "Enable",
-        "Disable"
+        "0",
+        "1",
+        "return"
     ]
     choice = MenuChoiceGen(choicelist,message,functionlist)
-    if choice == "Disable":
+    command = registrykey + choice
+    if choice == "1":
         print("Disabling...")
-        Con(disable)
-    elif choice == "Enable":
+        Con(command)
+    elif choice == "0":
         print("Enabling...")
-        Con(enable)
+        Con(command)
+    else:
+        pass
     return
 
 def CMDManage():
-    print("Work in progress..")
+    registrykey = "Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\System' -Name 'DisableCMD' -Value "
+    message = "[ CMD Management ] - what should we do ?"
+    choicelist = [
+    ("Enable CMD and bash execution",0),
+    ("Disable CMD but allow bash execution ",1)
+    ("Disable CMD and bash execution", 2)
+    ("Back", 3)
+    ]
+    functionlist = [
+        "0",
+        "1",
+        "2",
+        "return"
+    ]
+    choice = MenuChoiceGen(choicelist,message,functionlist)
+    command = registrykey + choice
+    if choice == "0":
+        print("Enabling CMD and Bash exec...")
+        Con(command)
+    elif choice == "1":
+        print("Disabling CMD but Allowing Bash exec...")
+        Con(command)
+    elif choice == "2":
+        print("Disabling CMD and Bash exec...")
+        Con(command)
+    else:
+        pass
+    return
 
 def AdminManage():
     print("Work in progress..")
