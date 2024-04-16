@@ -1,0 +1,4 @@
+inquirer
+pypsexec
+ipaddress
+prettytable
