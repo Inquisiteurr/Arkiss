@@ -30,4 +30,4 @@ pip install -r requirements.txt
 ```
     
 
-![Logo](ARKiss-logo.png)
+![Logo](ARKiss-mini.png)
