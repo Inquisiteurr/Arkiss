@@ -1,5 +1,5 @@
 
-![Logo](https://raw.githubusercontent.com/AlarakHS/Arkiss/main/ARKiss-txt.png?token=GHSAT0AAAAAACRBB4RT62WRZWCQJJWXR6FKZQ6MJOQ)
+![Logo](ARKiss-txt.png)
 
 
 # Arkiss
