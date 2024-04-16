@@ -2,6 +2,7 @@ import inquirer
 from pypsexec.client import Client
 import os
 import ipaddress
+from prettytable import PrettyTable
 
 ############################ GLOBALS ############################
 global global_ipfile
@@ -87,12 +88,12 @@ def Wincon(command, ip):
         c.create_service()
         stdout, stderr, rc = c.run_executable("powershell.exe", arguments=command)
         decoded_output = stdout.decode('ISO-8859-1')
-        print(f"{ip}\t\033[92mSuccess\033[0m")  # \033[92m and \033[0m are used to print the text in green color
+        print(f"{ip}\t\033[92mSuccess\033[0m")
         success = (ip, decoded_output)
         c.remove_service()
         c.disconnect()
     except Exception as e:
-        print(f"{ip}\t\033[91mFailed\033[0m")  # \033[91m and \033[0m are used to print the text in red color
+        print(f"{ip}\t\033[91mFailed\033[0m")
         failed = (ip, str(e))
     return success, failed
 
@@ -120,7 +121,6 @@ def Conchoice(command):
             iplist = read_and_validate_ip_file(global_ipfile)
             for ip, i in iplist:
                 successlist, failedlist = Getlists(command, ip, successlist, failedlist)
-
 
         elif choice == "1":
             Host(0)
@@ -329,6 +329,25 @@ def AdminManage():
 def AuthSleepMode():
     print("Work in progress..")
 
+def CreateTab(data, title):
+    table = PrettyTable()
+    table.field_names = ["IP", "Output"]
+    for ip, output in data:
+        color = "green" if global_username in output else "red"
+        output = "error" if "error" in output else output
+        table.add_row([ip, f"\033[1;31;40m {output} \033[m" if color == "red" else f"\033[1;32;40m {output} \033[m"])
+    print(title)
+    print(table)
+
+
+def Contest():
+    command = "whoami"
+    successlist, failedlist = Conchoice(command)
+    CreateTab(successlist, "Success Output")
+    CreateTab(failedlist, "Failed Output")
+
+
+
 
 # Secondary menu for additional tools
 def Divers():
@@ -341,7 +360,8 @@ def Divers():
             ("Command Line management", 3),
             ("Local Admin User management", 4),
             ("Force authentication after sleep mode", 5),
-            ("Back to Main menu", 6)
+            ("Test the connection/credentials",6),
+            ("Back to Main menu", 7)
         ]
         functionlist = [
             "Winimscan()",
@@ -350,6 +370,7 @@ def Divers():
             "CMDManage()",
             "AdminManage()",
             "AuthSleepMode()",
+            "Contest()",
             "return"
         ]
         function = MenuChoiceGen(mainmenu, message, functionlist)
