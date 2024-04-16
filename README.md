@@ -29,3 +29,5 @@ Install the python modules
 pip install -r requirements.txt
 ```
     
+
+![Logo](ARKiss-logo.png)
