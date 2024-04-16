@@ -141,10 +141,10 @@ def Conchoice(command):
 
 # Debuging function of death
 def Getdebug(successlist, failedlist):
-    message = "[ Debug menu ] - Do you want to see the result of the command ?"
+    message = "[ Debug menu ] - Do you want to see the results of the command ?"
     choicelist = [("Yes", 0), ("No", 1)]
     answerlist = [0, 1]
-    checkdebug = MenuChoiceGen(choicelist, message, answerlist)
+    checkdebug = MenuChoiceGen(choicelist, message, answerlist,skip=1)
     if checkdebug == 0:
         successlistdebug = [i for ip, i in successlist]
         failedlistdebug = [i for ip, i in failedlist]
@@ -163,7 +163,7 @@ def Getdebug(successlist, failedlist):
 
                 while True:
                     menu = " [ Success results ] - Please chose an ip to see the results"
-                    successoption = MenuChoiceGen(successlistmenu, menu, successlistdebugprint)
+                    successoption = MenuChoiceGen(successlistmenu, menu, successlistdebugprint, skip=1)
                     if successoption == "return":
                         del checkoption
                         break
@@ -178,7 +178,7 @@ def Getdebug(successlist, failedlist):
                 failedlistdebugprint.append("return")
                 while True:
                     menu = " [ Failed results ] - Please chose an ip to see the results"
-                    failedoption = MenuChoiceGen(failedlistmenu, menu, failedlistdebugprint)
+                    failedoption = MenuChoiceGen(failedlistmenu, menu, failedlistdebugprint, skip=1)
                     if failedoption == "return":
                         del checkoption
                         break
