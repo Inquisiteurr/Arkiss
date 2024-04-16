@@ -24,9 +24,10 @@ global_arkiss = """
                ███    ███   ▀                                                         
 """
 
-def MenuChoiceGen(choicelist, message, functionlist):
-    os.system('clear')
-    print(global_arkiss)
+def MenuChoiceGen(choicelist, message, functionlist,skip=0):
+    if skip == 0:
+        os.system('clear')
+        print(global_arkiss)
     questions = [inquirer.List('choicelist', message=message, choices=choicelist), ]
     answers = inquirer.prompt(questions)
     i = 0
@@ -384,6 +385,7 @@ def Settings():
 
 # main function
 def main():
+    os.system('clear')
     print(global_arkiss)
     while True:
         message = "[ Main Menu ] - Please chose an option"
@@ -409,6 +411,8 @@ def main():
         eval(function)
 
 ############################ SETUP ############################
+os.system('clear')
+print(global_arkiss)
 global_username = inquirer.text(message="Enter your username")
 global_password = inquirer.password(message='Please enter your password')
 global_ipfile = "Hosts"
