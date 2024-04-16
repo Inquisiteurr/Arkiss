@@ -23,7 +23,7 @@ global_arkiss = """
   ███    █▀    ███    ███   ███   ▀█▀ █▀    ▄████████▀   ▄████████▀                   
                ███    ███   ▀                                                         
 """
-
+# Automatic generation of choices menu
 def MenuChoiceGen(choicelist, message, functionlist,skip=0):
     if skip == 0:
         os.system('clear')
@@ -76,10 +76,6 @@ def read_and_validate_ip_file(file_path):
         except ValueError:
             print(f"L'adresse IP {ip} n'est pas valide.")
     return valid_ip_list
-
-
-# Automatic generation of choices menu
-
 
 # command casting function
 def Wincon(command, ip):
