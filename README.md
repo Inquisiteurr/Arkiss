@@ -13,7 +13,7 @@ Administration/Security tool to deploy command and stuff to remote windows compu
 
 - [@Inquisiteur](https://github.com/Inquisiteurr)
 - [@Statoz](https://github.com/StatozZ)
-- [@Oboron](https://github.com/AlarakHS)
+- [@garm](garm.cyber@gmail.com)
 
 
 ## License
