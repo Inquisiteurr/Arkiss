@@ -3,6 +3,7 @@ from pypsexec.client import Client
 import os
 import ipaddress
 from prettytable import PrettyTable
+import yaml
 
 ############################ GLOBALS ############################
 global global_ipfile
@@ -24,6 +25,35 @@ global_arkiss = """
   ███    █▀    ███    ███   ███   ▀█▀ █▀    ▄████████▀   ▄████████▀                   
                ███    ███   ▀                                                         
 """
+#Check the settings file
+def checksetting(setting):
+    with open('settings.yml', 'r') as f:
+        config = yaml.safe_load(f)
+        return config[setting]
+
+def editsetting(setting, value):
+    with open('settings.yml', 'r') as f:
+        config = yaml.safe_load(f)
+
+    config[setting] = value
+
+    with open('settings.yml', 'w') as f:
+        yaml.dump(config, f, default_flow_style=False)
+
+
+# Function to verify ip adress inside ip adress file
+def read_and_validate_ip_file(file_path):
+    with open(file_path, 'r') as file:
+        ip_list = [line.strip() for line in file]
+    valid_ip_list = []
+    for i, ip in enumerate(ip_list):
+        try:
+            ipaddress.ip_address(ip)
+            valid_ip_list.append((ip, i))
+        except ValueError:
+            print(f"The IP address {ip} is not valid. Change the File before launching Arkiss again ;)")
+    return valid_ip_list
+
 # Automatic generation of choices menu
 def MenuChoiceGen(choicelist, message, functionlist,skip=0):
     if skip == 0:
@@ -62,21 +92,17 @@ def Host(force=1):
         global_hostname = inquirer.text(message="Enter the hostname/IP to use")
         global_method = 0
     else:
+        message = "[ Wich Ip file do you want to use?  ] - Please chose an option"
+        files = os.listdir("hostfile")
+        listfile = [(file, i) for i, file in enumerate(files)]
+        answerlist = [i for _, i in listfile]
+        fileanswer = MenuChoiceGen(listfile,message,answerlist)
+        editsetting('global_ipfile', fileanswer)
+        tempipfile = "hostfile/" + checksetting('global_ipfile')
+        read_and_validate_ip_file(tempipfile)
+        global_ipfile = tempipfile
         global_method = 1
     return
-
-# Function to verify ip adress inside ip adress file
-def read_and_validate_ip_file(file_path):
-    with open(file_path, 'r') as file:
-        ip_list = [line.strip() for line in file]
-    valid_ip_list = []
-    for i, ip in enumerate(ip_list):
-        try:
-            ipaddress.ip_address(ip)
-            valid_ip_list.append((ip, i))
-        except ValueError:
-            print(f"L'adresse IP {ip} n'est pas valide.")
-    return valid_ip_list
 
 # command casting function
 def Wincon(command, ip):
@@ -432,7 +458,9 @@ os.system('clear')
 print(global_arkiss)
 global_username = inquirer.text(message="Enter your username")
 global_password = inquirer.password(message='Please enter your password')
-global_ipfile = "hostfile/Default"
+tempipfile = "hostfile/" + checksetting('global_ipfile')
+read_and_validate_ip_file(tempipfile)
+global_ipfile = tempipfile
 message = "[ Single IP or IP file?  ] - Please chose an option"
 mainmenu = [("Single IP", 0), ("IP file", 1)]
 choicelist1 = [0, 1]
