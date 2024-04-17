@@ -432,7 +432,7 @@ os.system('clear')
 print(global_arkiss)
 global_username = inquirer.text(message="Enter your username")
 global_password = inquirer.password(message='Please enter your password')
-global_ipfile = "Hosts"
+global_ipfile = "hostfile/Default"
 message = "[ Single IP or IP file?  ] - Please chose an option"
 mainmenu = [("Single IP", 0), ("IP file", 1)]
 choicelist1 = [0, 1]
