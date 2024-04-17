@@ -11,7 +11,7 @@ Administration/Security tool to deploy command and stuff to remote windows compu
 
 ## Authors
 
-- [@Inquisiteur](https://github.com/AlarakHS)
+- [@Inquisiteur](https://github.com/Inquisiteurr)
 - [@Statoz](https://github.com/StatozZ)
 - [@Oboron](https://github.com/AlarakHS)
 
