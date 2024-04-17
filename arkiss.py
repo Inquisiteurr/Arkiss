@@ -372,9 +372,6 @@ def Contest():
     CreateTab(successlist, "Success Output")
     CreateTab(failedlist, "Failed Output")
 
-
-
-
 # Secondary menu for additional tools
 def Divers():
     while True:
