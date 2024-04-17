@@ -1,5 +1,5 @@
 
-![Logo](ARKiss-txt.png)
+![Logo](ressources/ARKiss-txt.png)
 
 
 # Arkiss
@@ -30,4 +30,4 @@ pip install -r requirements.txt
 ```
     
 
-![Logo](ARKiss-mini.png)
+![Logo](ressources/ARKiss-mini.png)
