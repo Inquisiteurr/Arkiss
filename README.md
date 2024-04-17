@@ -18,7 +18,7 @@ Administration/Security tool to deploy command and stuff to remote windows compu
 
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+[GPL-3.0](https://choosealicense.com/licenses/gpl-3.0/)
 
 
 ## Installation
