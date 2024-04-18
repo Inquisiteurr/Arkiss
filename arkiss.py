@@ -41,9 +41,7 @@ def MenuChoiceGen(choices, message, skip=0):
         print(global_arkiss)
     questions = [inquirer.List('choices', message=message, choices=list(choices.keys())), ]
     answers = inquirer.prompt(questions)
-    for i, choice in enumerate(choices):
-        if answers['choices'] == choice:
-            return choices[choice]
+    return choices[answers['choices']]
 
 def menu_option(display_name):
     def decorator(func):
@@ -99,9 +97,8 @@ class Settings:
         else:
             pass
         message = "[ Single IP or IP file?  ] - Please chose an option"
-        mainmenu = [("Single IP", 0), ("IP file", 1)]
-        choicelist1 = [0, 1]
-        answer = MenuChoiceGen(mainmenu, message, choicelist1)
+        mainmenu = {"Single IP": 0, "IP file": 1}
+        answer = MenuChoiceGen(mainmenu, message)
         if answer == 0:
             hostname = inquirer.text(message="Enter the hostname/IP to use")
             Config().editsetting('global_method',0)
@@ -109,11 +106,10 @@ class Settings:
         else:
             message = "[ Wich Ip file do you want to use?  ] - Please chose an option"
             files = os.listdir("hostfile")
-            listfile = [(file, i) for i, file in enumerate(files)]
-            answerlist = [i for _, i in listfile]
-            fileanswer = MenuChoiceGen(listfile,message,answerlist)
-            Config().editsetting('global_ipfile',fileanswer)
-            Config().editsetting('global_method',1)
+            listfile = {file: i for i, file in enumerate(files)}
+            fileanswer = MenuChoiceGen(listfile, message)
+            Config().editsetting('global_ipfile', fileanswer)
+            Config().editsetting('global_method', 1)
         return
     @menu_option("Back to Main menu")
     def do_nothing(self):
@@ -161,15 +157,14 @@ class CommandExecutor:
 
         if self.method == 1:
             message = "[ Single IP or IP file? ] - Are you sure to deploy this command on every IP ?"
-            choicelist = [("yes", 0), ("Change to Single IP", 1), ("Back", 2)]
-            functionlist = ["0", "1", "return"]
-            choice = MenuChoiceGen(choicelist, message, functionlist)
-            if choice == "0":
+            choicelist = {"yes": 0, "Change to Single IP": 1, "Back": 2}
+            choice = MenuChoiceGen(choicelist, message)
+            if choice == 0:
                 iplist = read_and_validate_ip_file(self.ipfile)
                 for ip, i in iplist:
                     successlist, failedlist = self.Getlists(command, ip, successlist, failedlist)
 
-            elif choice == "1":
+            elif choice == 1:
                 Host(0)
                 ip = Config().checksetting('global_hostname')
                 successlist, failedlist = self.Getlists(command, ip, successlist, failedlist)
@@ -180,27 +175,26 @@ class CommandExecutor:
             successlist, failedlist = self.Getlists(command, ip, successlist, failedlist)
 
         return successlist, failedlist
-    
+
     def Getdebug(self, successlist, failedlist):
         message = "[ Debug menu ] - Do you want to see the results of the command ?"
-        choicelist = [("Yes", 0), ("No", 1)]
-        answerlist = [0, 1]
-        checkdebug = MenuChoiceGen(choicelist, message, answerlist, skip=1)
+        choicelist = {"Yes": 0, "No": 1}
+        checkdebug = MenuChoiceGen(choicelist, message, skip=1)
         if checkdebug == 0:
             debug_lists = [(successlist, [i for ip, i in successlist], f"Success({len(successlist)})"), 
                         (failedlist, [i for ip, i in failedlist], f"Failed({len(failedlist)})")]
             while True:
                 message = "[ Debug menu ] - Please chose an option"
-                choicelist = [(label, idx) for idx, (_, _, label) in enumerate(debug_lists)] + [("Continue", 2)]
-                answerlist = [0, 1, 2]
-                checkoption = MenuChoiceGen(choicelist, message, answerlist)
+                choicelist = {label: idx for idx, (_, _, label) in enumerate(debug_lists)}
+                choicelist["Continue"] = 2
+                checkoption = MenuChoiceGen(choicelist, message)
                 if checkoption in [0, 1]:
                     listmenu, listdebugprint, _ = debug_lists[checkoption]
                     listmenu.append("Back to Debug menu")
                     listdebugprint.append("return")
                     while True:
-                        menu = f" [ {choicelist[checkoption][0]} results ] - Please chose an ip to see the results"
-                        option = MenuChoiceGen(listmenu, menu, listdebugprint, skip=1)
+                        menu = f" [ {list(choicelist.keys())[checkoption]} results ] - Please chose an ip to see the results"
+                        option = MenuChoiceGen({ip: result for ip, result in zip(listmenu, listdebugprint)}, menu, skip=1)
                         if option == "return":
                             listmenu.pop()  # remove "Back to Debug menu"
                             break
@@ -210,6 +204,7 @@ class CommandExecutor:
                     return
         else:
             return
+
 
 class Secondmenu:
     @menu_option("Windows image scan")  
@@ -356,6 +351,8 @@ def main():
     print(global_arkiss)
     mainmenu = Mainmenu()
     menu_dict = create_menu_dict(mainmenu)
+    Settings().Cred()
+    Settings().Host()
     while True:
         message = "[ Main Menu ] - Please chose an option"
         function = MenuChoiceGen(menu_dict, message)
