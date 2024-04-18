@@ -115,7 +115,6 @@ class Settings:
     def do_nothing(self):
         pass
 
-
 class CommandExecutor:
     def __init__(self, encrypt=False):
         self.ipfile = "hostfile/" + Config().checksetting('global_ipfile')
@@ -205,7 +204,6 @@ class CommandExecutor:
         else:
             return
 
-
 class Secondmenu:
     @menu_option("Windows image scan")  
     def Winimscan():
@@ -290,7 +288,6 @@ class Secondmenu:
     @menu_option("Back to Main menu")
     def do_nothing(self):
         pass
-
 
 class Mainmenu:
     @menu_option("Deploy Elasticsearch Cluster")
