@@ -4,7 +4,6 @@ from pypsexec.client import Client
 from cryptography.fernet import Fernet
 import os
 import inquirer
-import ipaddress
 import yaml
 import base64
 import inspect
