@@ -2,3 +2,9 @@ inquirer
 pypsexec
 ipaddress
 prettytable
+os
+prettytable
+yaml
+cryptography.fernet
+base64
+inspect
