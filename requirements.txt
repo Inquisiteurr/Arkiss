@@ -7,3 +7,4 @@ yaml
 cryptography.fernet
 base64
 inspect
+smb.SMBConnection
