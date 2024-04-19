@@ -1,10 +1,11 @@
-import inquirer
-from pypsexec.client import Client
-import os
-import ipaddress
 from prettytable import PrettyTable
-import yaml
+from smb.SMBConnection import SMBConnection
+from pypsexec.client import Client
 from cryptography.fernet import Fernet
+import os
+import inquirer
+import ipaddress
+import yaml
 import base64
 import inspect
 
@@ -125,26 +126,49 @@ class CommandExecutor:
         self.ipfile = "hostfile/" + Config().checksetting('global_ipfile')
         self.username = Config().checksetting('global_username', cred=1)
         self.password = Config().checksetting('global_password', cred=1)
-        self.encrypt = encrypt
         self.method = Config().checksetting('global_method')
         self.hostname = Config().checksetting('global_hostname')
+        self.encrypt = encrypt
 
     def Wincon(self, command, ip):
         success = None
         failed = None
-        c = Client(ip, username=self.username, password=self.password, encrypt=self.encrypt)
-        try:
-            c.connect()
-            c.create_service()
-            stdout, stderr, rc = c.run_executable("powershell.exe", arguments=command)
-            decoded_output = stdout.decode('ISO-8859-1')
-            print(f"{ip}\t\033[92mSuccess\033[0m")
-            success = (ip, decoded_output)
-            c.remove_service()
-            c.disconnect()
-        except Exception as e:
-            print(f"{ip}\t\033[91mFailed\033[0m")
-            failed = (ip, str(e))
+        if "custom/windows" in command:
+            conn = SMBConnection(username=self.username, password=self.password, client="Arkiss", server=ip, use_ntlm_v2=True)
+            assert conn.connect(server, 139)
+            with open("command", 'rb') as file_obj:
+                conn.storeFile('C$', '\\temp\\', file_obj)
+            c = Client(ip, username=self.username, password=self.password, encrypt=self.encrypt)
+            script = command.split('/')[-1]
+            try:
+                c.connect()
+                c.create_service()
+                stdout, stderr, rc = c.run_executable("powershell.exe", arguments=f"-File C:\\temp\\" + script)
+                stdout, stderr, rc = c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
+                decoded_output = stdout.decode('ISO-8859-1')
+                print(f"{ip}\t\033[92mSuccess\033[0m")
+                print(decoded_output)
+                success = (ip, decoded_output)
+                c.remove_service()
+                c.disconnect()
+            except Exception as e:
+                print(f"{ip}\t\033[91mFailed\033[0m")
+                failed = (ip, str(e))
+
+        else:
+            c = Client(ip, username=self.username, password=self.password, encrypt=self.encrypt)
+            try:
+                c.connect()
+                c.create_service()
+                stdout, stderr, rc = c.run_executable("powershell.exe", arguments=command)
+                decoded_output = stdout.decode('ISO-8859-1')
+                print(f"{ip}\t\033[92mSuccess\033[0m")
+                success = (ip, decoded_output)
+                c.remove_service()
+                c.disconnect()
+            except Exception as e:
+                print(f"{ip}\t\033[91mFailed\033[0m")
+                failed = (ip, str(e))
         return success, failed
 
     def Getlists(self, command, ip, successlist, failedlist):
@@ -320,6 +344,32 @@ class Secondmenu:
         successlist, failedlist = CommandExecutor().Conchoice(command)
         CreateTab(successlist, "Success Output")
         CreateTab(failedlist, "Failed Output")
+    @menu_option("Custom script execution")
+    def Custom(self):
+        message = "[ Custom Scripts ] - What is your OS target ?"
+        choicelist = {"Windows": 0,"Linux":1,"Back": 2}
+        choice = MenuChoiceGen(choicelist, message)
+        if choice == 0:
+            message = "[ Wich script  do you want to use?  ] - Please chose an option"
+            files = os.listdir("custom/windows")
+            listfile = {file: i for i, file in enumerate(files)}
+            fileanswer = MenuChoiceGen(listfile, message)
+            command = "custom/windows/" + fileanswer 
+            successlist, failedlist = CommandExecutor().Conchoice(command)
+            if successlist == 0:
+                return
+            else:
+                CommandExecutor().Getdebug(successlist, failedlist)
+
+        elif choice == 1:
+            message = "[ Wich script  do you want to use?  ] - Please chose an option"
+            files = os.listdir("custom/linux")
+            listfile = {file: i for i, file in enumerate(files)}
+            fileanswer = MenuChoiceGen(listfile, message)
+            pass
+
+        else:
+            return
     @menu_option("Back to Main menu")
     def do_nothing(self):
         pass
