@@ -88,29 +88,34 @@ class Settings:
         Config().editsetting('global_username', cipher_text_username.decode())
         Config().editsetting('global_password', cipher_text_password.decode())
     @menu_option("Change the Host / Single IP or IP file")
-    def Host(self, force=1):
-        if force == 0:
+    def Host(self, force=0):
+        if force == 1:
             hostname = inquirer.text(message="Enter the hostname/IP to use")
             Config().editsetting('global_method',0)
             Config().editsetting('global_hostname', hostname)
             return
-        else:
-            pass
-        message = "[ Single IP or IP file?  ] - Please chose an option"
-        mainmenu = {"Single IP": 0, "IP file": 1}
-        answer = MenuChoiceGen(mainmenu, message)
-        if answer == 0:
-            hostname = inquirer.text(message="Enter the hostname/IP to use")
-            Config().editsetting('global_method',0)
-            Config().editsetting('global_hostname', hostname)
-        else:
+        elif force == 2:
             message = "[ Wich Ip file do you want to use?  ] - Please chose an option"
             files = os.listdir("hostfile")
             listfile = {file: i for i, file in enumerate(files)}
             fileanswer = MenuChoiceGen(listfile, message)
             Config().editsetting('global_ipfile', fileanswer)
             Config().editsetting('global_method', 1)
-        return
+        else:
+            message = "[ Single IP or IP file?  ] - Please chose an option"
+            mainmenu = {"Single IP": 0, "IP file": 1}
+            answer = MenuChoiceGen(mainmenu, message)
+            if answer == 0:
+                hostname = inquirer.text(message="Enter the hostname/IP to use")
+                Config().editsetting('global_method',0)
+                Config().editsetting('global_hostname', hostname)
+            else:
+                message = "[ Wich Ip file do you want to use?  ] - Please chose an option"
+                files = os.listdir("hostfile")
+                listfile = {file: i for i, file in enumerate(files)}
+                fileanswer = MenuChoiceGen(listfile, message)
+                Config().editsetting('global_ipfile', fileanswer)
+                Config().editsetting('global_method', 1)
     @menu_option("Back to Main menu")
     def do_nothing(self):
         pass
@@ -159,12 +164,20 @@ class CommandExecutor:
             choicelist = {"yes": 0, "Change to Single IP": 1, "Back": 2}
             choice = MenuChoiceGen(choicelist, message)
             if choice == 0:
-                iplist = read_and_validate_ip_file(self.ipfile)
-                for ip, i in iplist:
-                    successlist, failedlist = self.Getlists(command, ip, successlist, failedlist)
+                messageipfile = "[ Single IP or IP file? ] - You are using, the ipfile " + Config().checksetting('global_ipfile') + ", Do you want to change ?"
+                choicelistipfile = {"yes": 0, "No": 1}
+                checkipfile = MenuChoiceGen(choicelistipfile, messageipfile)
+                if checkipfile == 1:
+                    for ip, i in self.ipfile:
+                        successlist, failedlist = self.Getlists(command, ip, successlist, failedlist)
+                else:
+                    Settings().Host(0)
+                    ipfilechanged = Config().checksetting('global_ipfile')
+                    for ip, i in ipfilechanged:
+                        successlist, failedlist = self.Getlists(command, ip, successlist, failedlist)
 
             elif choice == 1:
-                Host(0)
+                Settings().Host(1)
                 ip = Config().checksetting('global_hostname')
                 successlist, failedlist = self.Getlists(command, ip, successlist, failedlist)
             else:
@@ -204,31 +217,54 @@ class CommandExecutor:
         else:
             return
 
+class Urgentmenu:
+    @menu_option("Cut network connection")
+    def CutNet(self):
+        command = "Get-NetAdapter | % { if (Test-NetConnection -InterfaceAlias $_.Name -InformationLevel Quiet) { Disable-NetAdapter -Name $_.Name -Confirm:$false } }"
+        message = "[ Cut Network Connection ] - what should we do ?"
+        choicelist = {"Disable": 0,"Back": 1}
+        choice = MenuChoiceGen(choicelist, message)
+        if choice == 1:
+            CommandExecutor().Conchoice(command)
+        else:
+            return
+
+    @menu_option("Shutdown Computers")
+    def Shutdown(self):
+        command = "Stop-Computer"
+        message = "[ Shutdown Computers ] - what should we do ?"
+        choicelist = {"shutdown": 0,"Back": 1}
+        choice = MenuChoiceGen(choicelist, message)
+        if choice == 1:
+            CommandExecutor().Conchoice(command)
+        else:
+            return
+
+    @menu_option("Back to Main menu")
+    def do_nothing(self):
+        pass
+
 class Secondmenu:
     @menu_option("Windows image scan")  
-    def Winimscan():
+    def Winimscan(self):
         print("Work in progress..")
     @menu_option("Bitlocker crypting management")
-    def BitlockManage():
+    def BitlockManage(self):
         print("Work in progress..")
     @menu_option("Remote Desktop Protocol management")
-    def RDPManage():
+    def RDPManage(self):
         registrykey = "Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value "
         message = "[ RDP Management ] - what should we do ?"
-        choicelist = {
-            "Enable": 0,
-            "Disable": 1,
-            "Back": 2
-        }
+        choicelist = {"Enable": "0","Disable": "1","Back": "2"}
         choice = MenuChoiceGen(choicelist, message)
         command = registrykey + choice
-        if choice == 1:
+        if choice == "1":
             successlist, failedlist = CommandExecutor().Conchoice(command)
             if successlist == 0:
                 return
             else:
                 CommandExecutor().Getdebug(successlist, failedlist)
-        elif choice == 0:
+        elif choice == "0":
             successlist, failedlist = CommandExecutor().Conchoice(command)
             if successlist == 0:
                 return
@@ -236,34 +272,33 @@ class Secondmenu:
                 CommandExecutor().Getdebug(successlist, failedlist)
         else:
             return
-        return
     @menu_option("Command Line management")
-    def CMDManage():
+    def CMDManage(self):
         registrykey = "Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\System' -Name 'DisableCMD' -Value "
         message = "[ CMD Management ] - what should we do ?"
         choicelist = {
-            "Enable CMD and bash execution": 0,
-            "Disable CMD but allow bash execution ": 1,
-            "Disable CMD and bash execution": 2,
+            "Enable CMD and bash execution": "0",
+            "Disable CMD but allow bash execution ": "1",
+            "Disable CMD and bash execution": "2",
             "Back": 3
         }
         choice = MenuChoiceGen(choicelist, message, functionlist)
         command = registrykey + choice
-        if choice == 0:
+        if choice == "0":
             print("Enabling CMD and Bash exec...")
             successlist, failedlist = CommandExecutor().Conchoice(command)
             if successlist == 0:
                 return
             else:
                 CommandExecutor().Getdebug(successlist, failedlist)
-        elif choice == 1:
+        elif choice == "1":
             print("Disabling CMD but Allowing Bash exec...")
             successlist, failedlist = CommandExecutor().Conchoice(command)
             if successlist == 0:
                 return
             else:
                 CommandExecutor().Getdebug(successlist, failedlist)
-        elif choice == 2:
+        elif choice == "2":
             print("Disabling CMD and Bash exec...")
             successlist, failedlist = Conchoice(command)
             if successlist == 0:
@@ -274,13 +309,13 @@ class Secondmenu:
             return
         return
     @menu_option("Local Admin User management")
-    def AdminManage():
+    def AdminManage(self):
         print("Work in progress..")
     @menu_option("Force authentication after sleep mode")
-    def AuthSleepMode():
+    def AuthSleepMode(self):
         print("Work in progress..")
     @menu_option("Test the connection/credentials")
-    def Contest():
+    def Contest(self):
         command = "whoami"
         successlist, failedlist = CommandExecutor().Conchoice(command)
         CreateTab(successlist, "Success Output")
@@ -331,6 +366,18 @@ class Mainmenu:
                 return
             else:
                 function()
+    @menu_option("Urgent tasks")
+    def Urgent(self):
+        urgentmenu = Urgentmenu()
+        urgentmenu_dict = create_menu_dict(mainmenu)
+        while True:
+            message = "[ Urgent menu ] - Please chose an option"
+            function = MenuChoiceGen(urgentmenu_dict, message)
+            if function == diversmenu.do_nothing:
+                return
+            else:
+                function()
+
     @menu_option("Settings")  
     def Settings(self):
         message = "[ Settings ] - Please chose an option"
