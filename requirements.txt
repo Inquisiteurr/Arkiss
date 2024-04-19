@@ -1,6 +1,5 @@
 inquirer
 pypsexec
-ipaddress
 prettytable
 os
 prettytable
