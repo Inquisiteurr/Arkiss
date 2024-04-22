@@ -358,15 +358,18 @@ class Secondmenu:
     @order(7)
     @menu_option("Custom script execution")
     def Custom(self):
+        dir_path = os.path.dirname(os.path.realpath(__file__))
         message = "[ Custom Scripts ] - What is your OS target ?"
         choicelist = {"Windows": 0,"Linux":1,"Back": 2}
         choice = MenuChoiceGen(choicelist, message)
         if choice == 0:
+            folderpath = "custom/windows"
+            folder = os.path.join(self.dir_path, folderpath)
             message = "[ Wich script  do you want to use?  ] - Please chose an option"
-            files = os.listdir("custom/windows")
+            files = os.listdir(folder)
             listfile = {file: i for i, file in enumerate(files)}
             fileanswer = MenuChoiceGen(listfile, message)
-            command = "custom/windows/" + fileanswer 
+            command = folder + fileanswer 
             successlist, failedlist = CommandExecutor().Conchoice(command)
             if successlist == 0:
                 return
@@ -374,8 +377,10 @@ class Secondmenu:
                 CommandExecutor().Getdebug(successlist, failedlist)
 
         elif choice == 1:
+            folderpath = "custom/linux"
+            folder = os.path.join(self.dir_path, folderpath)
             message = "[ Wich script  do you want to use?  ] - Please chose an option"
-            files = os.listdir("custom/linux")
+            files = os.listdir(folder)
             listfile = {file: i for i, file in enumerate(files)}
             fileanswer = MenuChoiceGen(listfile, message)
             pass
