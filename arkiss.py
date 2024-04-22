@@ -244,7 +244,8 @@ class CommandExecutor:
                             break
                         else:
                             print(option)
-                            return
+                            listmenu.pop()
+                            break
                 else:
                     return
         else:
