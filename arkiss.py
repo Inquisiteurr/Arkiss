@@ -38,7 +38,7 @@ def MenuChoiceGen(choices, message, skip=0):
     if skip == 0:
         os.system('clear')
         print(global_arkiss)
-    sorted_choices = sorted(choices.items(), key=lambda item: getattr(item[1], 'order', float('inf')))
+    sorted_choices = sorted(choices.items(), key=lambda item: getattr(item[1], 'order', float('inf')) if callable(item[1]) else float('inf'))
     questions = [inquirer.List('choices', message=message, choices=[choice[0] for choice in sorted_choices])]
     answers = inquirer.prompt(questions)
     return dict(sorted_choices)[answers['choices']]
@@ -65,12 +65,8 @@ class Config:
         self.filename = os.path.join(self.dir_path, filename)
 
     def checksetting(self, setting):
-            with open(self.filename, 'r') as f:
-                value = yaml.safe_load(f)[setting]
-                if setting == 'global_method':
-                    return value
-                else:
-                    return str(value)
+        with open(self.filename, 'r') as f:
+            return yaml.safe_load(f)[setting]
 
     def editsetting(self, setting, value):
         with open(self.filename, 'r') as f:
