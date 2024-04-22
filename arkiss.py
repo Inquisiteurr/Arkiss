@@ -240,10 +240,11 @@ class CommandExecutor:
                         menu = f" [ {list(choicelist.keys())[checkoption]} results ] - Please chose an ip to see the results"
                         option = MenuChoiceGen({ip: result for ip, result in zip(listmenu, listdebugprint)}, menu, skip=1)
                         if option == "return":
-                            listmenu.pop()  # remove "Back to Debug menu"
+                            listmenu.pop()
                             break
                         else:
                             print(option)
+                            return
                 else:
                     return
         else:
