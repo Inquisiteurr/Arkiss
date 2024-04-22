@@ -65,8 +65,12 @@ class Config:
         self.filename = os.path.join(self.dir_path, filename)
 
     def checksetting(self, setting):
-        with open(self.filename, 'r') as f:
-            return yaml.safe_load(f)[setting]
+            with open(self.filename, 'r') as f:
+                value = yaml.safe_load(f)[setting]
+                if setting == 'global_method':
+                    return value
+                else:
+                    return str(value)
 
     def editsetting(self, setting, value):
         with open(self.filename, 'r') as f:
@@ -126,7 +130,7 @@ class CommandExecutor:
     def __init__(self, encrypt=False, folder='hostfile'):
         self.dir_path = os.path.dirname(os.path.realpath(__file__))
         self.folder = os.path.join(self.dir_path, folder)
-        self.ipfile = self.folder + str(Config().checksetting('global_ipfile'))
+        self.ipfile = self.folder + Config().checksetting('global_ipfile')
         self.username = Config().checksetting('global_username')
         self.password = Config().checksetting('global_password')
         self.method = Config().checksetting('global_method')
