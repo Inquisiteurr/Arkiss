@@ -25,10 +25,11 @@ global_arkiss = """
 
 
 def CreateTab(data, title):
+    username = Config().checksetting('global_username')
     table = PrettyTable()
     table.field_names = ["IP", "Output"]
     for ip, output in data:
-        color = "green" if global_username in output else "red"
+        color = "green" if username in output else "red"
         output = "error" if "error" in output else output
         table.add_row([ip, f"\033[1;31;40m {output} \033[m" if color == "red" else f"\033[1;32;40m {output} \033[m"])
     print(title)
