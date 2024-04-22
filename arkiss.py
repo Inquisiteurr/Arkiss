@@ -361,10 +361,12 @@ class Secondmenu:
     def Contest(self):
         command = "whoami"
         successlist, failedlist = CommandExecutor().Conchoice(command)
-        CreateTab(successlist, "Success Output")
-        CreateTab(failedlist, "Failed Output")
-        message = "[ Connection test ] "
-        choicelist = {"Back": 0}
+        if len(successlist) !=0:
+            CreateTab(successlist, "Success Output")
+        if len(failedlist) !=0:
+            CreateTab(failedlist, "Failed Output")
+        message = "[ Back to divers menu ] "
+        choicelist = {"Yes": 0}
         MenuChoiceGen(choicelist, message, skip=1)
     @order(7)
     @menu_option("Custom script execution")
