@@ -322,7 +322,7 @@ class Secondmenu:
             "Disable CMD and bash execution": "2",
             "Back": 3
         }
-        choice = MenuChoiceGen(choicelist, message, functionlist)
+        choice = MenuChoiceGen(choicelist, message)
         command = registrykey + choice
         if choice == "0":
             print("Enabling CMD and Bash exec...")
@@ -361,9 +361,11 @@ class Secondmenu:
     def Contest(self):
         command = "whoami"
         successlist, failedlist = CommandExecutor().Conchoice(command)
-        os.system('clear')
         CreateTab(successlist, "Success Output")
         CreateTab(failedlist, "Failed Output")
+        message = "[ Connection test ] "
+        choicelist = {"Back": 0}
+        MenuChoiceGen(choicelist, message)
     @order(7)
     @menu_option("Custom script execution")
     def Custom(self):
