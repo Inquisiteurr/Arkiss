@@ -364,7 +364,7 @@ class Secondmenu:
         choice = MenuChoiceGen(choicelist, message)
         if choice == 0:
             folderpath = "custom/windows"
-            folder = os.path.join(self.dir_path, folderpath)
+            folder = os.path.join(dir_path, folderpath)
             message = "[ Wich script  do you want to use?  ] - Please chose an option"
             files = os.listdir(folder)
             listfile = {file: i for i, file in enumerate(files)}
@@ -378,7 +378,7 @@ class Secondmenu:
 
         elif choice == 1:
             folderpath = "custom/linux"
-            folder = os.path.join(self.dir_path, folderpath)
+            folder = os.path.join(dir_path, folderpath)
             message = "[ Wich script  do you want to use?  ] - Please chose an option"
             files = os.listdir(folder)
             listfile = {file: i for i, file in enumerate(files)}
