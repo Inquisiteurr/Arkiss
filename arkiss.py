@@ -442,7 +442,7 @@ class Mainmenu:
         diversmenu_dict = create_menu_dict(diversmenu)
         while True:
             message = "[ Divers Menu ] - Please chose an option"
-            function = MenuChoiceGen(diversmenu_dict, message)
+            function = MenuChoiceGen(diversmenu_dict, message, skip=1)
             if function == diversmenu.do_nothing:
                 return
             else:
