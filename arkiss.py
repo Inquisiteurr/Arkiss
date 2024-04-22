@@ -38,9 +38,10 @@ def MenuChoiceGen(choices, message, skip=0):
     if skip == 0:
         os.system('clear')
         print(global_arkiss)
-    questions = [inquirer.List('choices', message=message, choices=list(choices.keys())), ]
+    sorted_choices = sorted(choices.items(), key=lambda item: getattr(item[1], 'order', float('inf')))
+    questions = [inquirer.List('choices', message=message, choices=[choice[0] for choice in sorted_choices])]
     answers = inquirer.prompt(questions)
-    return choices[answers['choices']]
+    return dict(sorted_choices)[answers['choices']]
 
 def menu_option(display_name):
     def decorator(func):
@@ -51,6 +52,12 @@ def menu_option(display_name):
 def create_menu_dict(obj):
     methods = inspect.getmembers(obj, predicate=inspect.ismethod)
     return {method.display_name: method for name, method in methods if hasattr(method, 'display_name')}
+
+def order(order_num):
+    def decorator(func):
+        func.order = order_num
+        return func
+    return decorator
 
 class Config:
     def __init__(self, filename='settings.yml'):
@@ -73,13 +80,14 @@ class Settings:
     def __init__(self, folder='hostfile'):
         self.dir_path = os.path.dirname(os.path.realpath(__file__))
         self.folder = os.path.join(self.dir_path, folder)
-
+    @order(0)
     @menu_option("Change the credentials to use")
     def Cred(self):
         username = inquirer.text(message="Enter your username")
         password = inquirer.password(message='Please enter your password')
         Config().editsetting('global_username', username)
         Config().editsetting('global_password', password)
+    @order(1)
     @menu_option("Change the Host / Single IP or IP file")
     def Host(self, force=0):
         if force == 1:
@@ -109,6 +117,7 @@ class Settings:
                 fileanswer = MenuChoiceGen(listfile, message)
                 Config().editsetting('global_ipfile', fileanswer)
                 Config().editsetting('global_method', 1)
+    @order(2)
     @menu_option("Back to Main menu")
     def do_nothing(self):
         pass
@@ -236,6 +245,7 @@ class CommandExecutor:
             return
 
 class Urgentmenu:
+    @order(0)
     @menu_option("Cut network connection")
     def CutNet(self):
         command = "Get-NetAdapter | % { if (Test-NetConnection -InterfaceAlias $_.Name -InformationLevel Quiet) { Disable-NetAdapter -Name $_.Name -Confirm:$false } }"
@@ -246,7 +256,7 @@ class Urgentmenu:
             CommandExecutor().Conchoice(command)
         else:
             return
-
+    @order(1)
     @menu_option("Shutdown Computers")
     def Shutdown(self):
         command = "Stop-Computer"
@@ -257,18 +267,21 @@ class Urgentmenu:
             CommandExecutor().Conchoice(command)
         else:
             return
-
+    @order(2)
     @menu_option("Back to Main menu")
     def do_nothing(self):
         pass
 
 class Secondmenu:
+    @order(0)
     @menu_option("Windows image scan")  
     def Winimscan(self):
         print("Work in progress..")
+    @order(1)
     @menu_option("Bitlocker crypting management")
     def BitlockManage(self):
         print("Work in progress..")
+    @order(2)
     @menu_option("Remote Desktop Protocol management")
     def RDPManage(self):
         registrykey = "Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value "
@@ -290,6 +303,7 @@ class Secondmenu:
                 CommandExecutor().Getdebug(successlist, failedlist)
         else:
             return
+    @order(3)
     @menu_option("Command Line management")
     def CMDManage(self):
         registrykey = "Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\System' -Name 'DisableCMD' -Value "
@@ -326,18 +340,22 @@ class Secondmenu:
         else:
             return
         return
+    @order(4)
     @menu_option("Local Admin User management")
     def AdminManage(self):
         print("Work in progress..")
+    @order(5)
     @menu_option("Force authentication after sleep mode")
     def AuthSleepMode(self):
         print("Work in progress..")
+    @order(6)
     @menu_option("Test the connection/credentials")
     def Contest(self):
         command = "whoami"
         successlist, failedlist = CommandExecutor().Conchoice(command)
         CreateTab(successlist, "Success Output")
         CreateTab(failedlist, "Failed Output")
+    @order(7)
     @menu_option("Custom script execution")
     def Custom(self):
         message = "[ Custom Scripts ] - What is your OS target ?"
@@ -364,20 +382,25 @@ class Secondmenu:
 
         else:
             return
+    @order(8)
     @menu_option("Back to Main menu")
     def do_nothing(self):
         pass
 
 class Mainmenu:
+    @order(0)
     @menu_option("Deploy Elasticsearch Cluster")
     def Deployelk(self):
         print("Déploiement du cluster elasticsearch")
+    @order(1)
     @menu_option("Windows Security Check")
     def Winaudit(self):
         print("Test d'audit windows")
+    @order(2)
     @menu_option("Windows Security Remediation")
     def Winauditrem(self):
         print("remediation")
+    @order(3)
     @menu_option("Check Windows Missing Updates")
     def Chkwinupdate(self):
         command = "Get-WindowsUpdate"
@@ -399,6 +422,7 @@ class Mainmenu:
                 else:
                     CommandExecutor().Getdebug(successlist, failedlist)
         return
+    @order(4)
     @menu_option("Additional tools")    
     def Divers(self):
         diversmenu = Secondmenu()
@@ -410,6 +434,7 @@ class Mainmenu:
                 return
             else:
                 function()
+    @order(5)
     @menu_option("Urgent tasks")
     def Urgent(self):
         urgentmenu = Urgentmenu()
@@ -421,6 +446,7 @@ class Mainmenu:
                 return
             else:
                 function()
+    @order(6)
     @menu_option("Settings")  
     def Settings(self):
         message = "[ Settings ] - Please chose an option"
@@ -428,6 +454,7 @@ class Mainmenu:
         settingsmenu_dict = create_menu_dict(settingsmenu)
         function = MenuChoiceGen(settingsmenu_dict, message)
         function()
+    @order(7)
     @menu_option("Leave") 
     def Leave(self):
         print("Thank you for using Arkiss :3")
