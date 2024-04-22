@@ -365,7 +365,7 @@ class Secondmenu:
         CreateTab(failedlist, "Failed Output")
         message = "[ Connection test ] "
         choicelist = {"Back": 0}
-        MenuChoiceGen(choicelist, message)
+        MenuChoiceGen(choicelist, message, skip=1)
     @order(7)
     @menu_option("Custom script execution")
     def Custom(self):
@@ -445,7 +445,7 @@ class Mainmenu:
         diversmenu_dict = create_menu_dict(diversmenu)
         while True:
             message = "[ Divers Menu ] - Please chose an option"
-            function = MenuChoiceGen(diversmenu_dict, message, skip=1)
+            function = MenuChoiceGen(diversmenu_dict, message)
             if function == diversmenu.do_nothing:
                 return
             else:
