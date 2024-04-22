@@ -69,6 +69,10 @@ class Config:
             yaml.dump(config, f, default_flow_style=False)
 
 class Settings:
+    def __init__(self, folder='hostfile'):
+        self.dir_path = os.path.dirname(os.path.realpath(__file__))
+        self.folder = os.path.join(self.dir_path, folder)
+
     @menu_option("Change the credentials to use")
     def Cred(self):
         username = inquirer.text(message="Enter your username")
@@ -84,7 +88,7 @@ class Settings:
             return
         elif force == 2:
             message = "[ Wich Ip file do you want to use?  ] - Please chose an option"
-            files = os.listdir("hostfile")
+            files = os.listdir(self.folder)
             listfile = {file: i for i, file in enumerate(files)}
             fileanswer = MenuChoiceGen(listfile, message)
             Config().editsetting('global_ipfile', fileanswer)
@@ -99,7 +103,7 @@ class Settings:
                 Config().editsetting('global_hostname', hostname)
             else:
                 message = "[ Wich Ip file do you want to use?  ] - Please chose an option"
-                files = os.listdir("hostfile")
+                files = os.listdir(self.folder)
                 listfile = {file: i for i, file in enumerate(files)}
                 fileanswer = MenuChoiceGen(listfile, message)
                 Config().editsetting('global_ipfile', fileanswer)
@@ -109,8 +113,10 @@ class Settings:
         pass
 
 class CommandExecutor:
-    def __init__(self, encrypt=False):
-        self.ipfile = "hostfile/" + Config().checksetting('global_ipfile')
+    def __init__(self, encrypt=False, folder='hostfile'):
+        self.dir_path = os.path.dirname(os.path.realpath(__file__))
+        self.folder = os.path.join(self.dir_path, folder)
+        self.ipfile = self.folder + Config().checksetting('global_ipfile')
         self.username = Config().checksetting('global_username')
         self.password = Config().checksetting('global_password')
         self.method = Config().checksetting('global_method')
