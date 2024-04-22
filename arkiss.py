@@ -98,7 +98,7 @@ class Settings:
         elif force == 2:
             message = "[ Wich Ip file do you want to use?  ] - Please chose an option"
             files = os.listdir(self.folder)
-            listfile = {file: i for i, file in enumerate(files)}
+            listfile = {file: file for file in files} 
             fileanswer = MenuChoiceGen(listfile, message)
             Config().editsetting('global_ipfile', fileanswer)
             Config().editsetting('global_method', 1)
@@ -113,7 +113,7 @@ class Settings:
             else:
                 message = "[ Wich Ip file do you want to use?  ] - Please chose an option"
                 files = os.listdir(self.folder)
-                listfile = {file: i for i, file in enumerate(files)}
+                listfile = {file: file for file in files} 
                 fileanswer = MenuChoiceGen(listfile, message)
                 Config().editsetting('global_ipfile', fileanswer)
                 Config().editsetting('global_method', 1)
