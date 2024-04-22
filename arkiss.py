@@ -1,7 +1,6 @@
 from prettytable import PrettyTable
 from smb.SMBConnection import SMBConnection
 from pypsexec.client import Client
-from cryptography.fernet import Fernet
 import os
 import inquirer
 import yaml
@@ -57,17 +56,9 @@ class Config:
     def __init__(self, filename='settings.yml'):
         self.filename = filename
 
-    def checksetting(self, setting, cred=0):
+    def checksetting(self, setting):
         with open(self.filename, 'r') as f:
-            if cred == 0:
-                return yaml.safe_load(f)[setting]
-            else:
-                user_password = inquirer.password(message="Please enter your password : ")
-                key = base64.urlsafe_b64encode(user_password.encode())
-                cipher_suite = Fernet(key)
-                decrypted_setting = cipher_suite.decrypt(yaml.safe_load(f)[setting].encode())
-
-                return decrypted_setting.decode()
+            return yaml.safe_load(f)[setting]
 
     def editsetting(self, setting, value):
         with open(self.filename, 'r+') as f:
@@ -81,12 +72,8 @@ class Settings:
     def Cred(self):
         username = inquirer.text(message="Enter your username")
         password = inquirer.password(message='Please enter your password')
-        key = base64.urlsafe_b64encode(password.encode())
-        cipher_suite = Fernet(key)
-        cipher_text_username = cipher_suite.encrypt(username.encode())
-        cipher_text_password = cipher_suite.encrypt(password.encode())
-        Config().editsetting('global_username', cipher_text_username.decode())
-        Config().editsetting('global_password', cipher_text_password.decode())
+        Config().editsetting('global_username', username)
+        Config().editsetting('global_password', password)
     @menu_option("Change the Host / Single IP or IP file")
     def Host(self, force=0):
         if force == 1:
@@ -123,8 +110,8 @@ class Settings:
 class CommandExecutor:
     def __init__(self, encrypt=False):
         self.ipfile = "hostfile/" + Config().checksetting('global_ipfile')
-        self.username = Config().checksetting('global_username', cred=1)
-        self.password = Config().checksetting('global_password', cred=1)
+        self.username = Config().checksetting('global_username')
+        self.password = Config().checksetting('global_password')
         self.method = Config().checksetting('global_method')
         self.hostname = Config().checksetting('global_hostname')
         self.encrypt = encrypt
