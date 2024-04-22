@@ -369,7 +369,7 @@ class Secondmenu:
             files = os.listdir(folder)
             listfile = {file: i for i, file in enumerate(files)}
             fileanswer = MenuChoiceGen(listfile, message)
-            command = folder + fileanswer 
+            command = str(folder) + fileanswer 
             successlist, failedlist = CommandExecutor().Conchoice(command)
             if successlist == 0:
                 return
