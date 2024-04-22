@@ -195,12 +195,12 @@ class CommandExecutor:
                 choicelistipfile = {"yes": 0, "No": 1}
                 checkipfile = MenuChoiceGen(choicelistipfile, messageipfile)
                 if checkipfile == 1:
-                    for ip, i in self.ipfile:
+                    for ip in self.ipfile:
                         successlist, failedlist = self.Getlists(command, ip, successlist, failedlist)
                 else:
                     Settings().Host(0)
                     ipfilechanged = Config().checksetting('global_ipfile')
-                    for ip, i in ipfilechanged:
+                    for ip in ipfilechanged:
                         successlist, failedlist = self.Getlists(command, ip, successlist, failedlist)
 
             elif choice == 1:
