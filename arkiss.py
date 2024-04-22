@@ -361,6 +361,7 @@ class Secondmenu:
     def Contest(self):
         command = "whoami"
         successlist, failedlist = CommandExecutor().Conchoice(command)
+        os.system('clear')
         CreateTab(successlist, "Success Output")
         CreateTab(failedlist, "Failed Output")
     @order(7)
