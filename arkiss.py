@@ -62,11 +62,12 @@ class Config:
             return yaml.safe_load(f)[setting]
 
     def editsetting(self, setting, value):
-        with open(self.filename, 'r+') as f:
+        with open(self.filename, 'r') as f:
             config = yaml.safe_load(f)
             config[setting] = value
-            f.seek(0)
+        with open(self.filename, 'w') as f:
             yaml.dump(config, f, default_flow_style=False)
+
 
 class Settings:
     def __init__(self, folder='hostfile'):
