@@ -445,5 +445,7 @@ def main():
         message = "[ Main Menu ] - Please chose an option"
         function = MenuChoiceGen(menu_dict, message)
         function()
+        if function() is False:
+            break 
 
 main()
