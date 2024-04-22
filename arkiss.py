@@ -421,7 +421,6 @@ class Mainmenu:
                 return
             else:
                 function()
-
     @menu_option("Settings")  
     def Settings(self):
         message = "[ Settings ] - Please chose an option"
