@@ -54,7 +54,8 @@ def create_menu_dict(obj):
 
 class Config:
     def __init__(self, filename='settings.yml'):
-        self.filename = filename
+        self.dir_path = os.path.dirname(os.path.realpath(__file__))
+        self.filename = os.path.join(self.dir_path, filename)
 
     def checksetting(self, setting):
         with open(self.filename, 'r') as f:
