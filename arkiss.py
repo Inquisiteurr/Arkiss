@@ -143,14 +143,14 @@ class CommandExecutor:
     def Wincon(self, command, ip):
         success = None
         failed = None
+        c = Client(ip, username=self.username, password=self.password, encrypt=self.encrypt)
         if "custom/windows" in command:
             conn = SMBConnection(self.username, self.password, 'Arkiss', ip, use_ntlm_v2=True)
-            assert conn.connect(ip, 139)
-            with open("command", 'rb') as file_obj:
-                conn.storeFile('C$', '\\temp\\', file_obj)
-            c = Client(ip, username=self.username, password=self.password, encrypt=self.encrypt)
-            script = command.split('/')[-1]
             try:
+                assert conn.connect(ip, 139)
+                with open("command", 'rb') as file_obj:
+                    conn.storeFile('C$', '\\temp\\', file_obj)
+                script = command.split('/')[-1]
                 c.connect()
                 c.create_service()
                 stdout, stderr, rc = c.run_executable("powershell.exe", arguments=f"-File C:\\temp\\" + script)
@@ -166,7 +166,6 @@ class CommandExecutor:
                 failed = (ip, str(e))
 
         else:
-            c = Client(ip, username=self.username, password=self.password, encrypt=self.encrypt)
             try:
                 c.connect()
                 c.create_service()
