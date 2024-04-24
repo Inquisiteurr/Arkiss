@@ -24,7 +24,7 @@ global_arkiss = """
 """
 
 
-def CreateTab(data, title, contest=0):
+def CreateTab(data, title, contest=0,result=0):
     table = PrettyTable()
     table.field_names = ["IP", "Output"]
     if contest == 1:
@@ -34,7 +34,7 @@ def CreateTab(data, title, contest=0):
             table.add_row([ip, f"\033[1;31;40m {output} \033[m" if color == "red" else f"\033[1;32;40m {output} \033[m"])
     else:
         for ip, output in data:
-            color = "red" if "error" in output else "green"
+            color = "red" if result==1 else "green"
             table.add_row([ip, f"\033[1;31;40m {output} \033[m" if color == "red" else f"\033[1;32;40m {output} \033[m"])
     print(title)
     print(table)
@@ -236,11 +236,11 @@ class CommandExecutor:
                 checkoption = MenuChoiceGen(choicelist, message)
                 if checkoption == 0:
                     if len(successlist) !=0:
-                        CreateTab(successlist, "Success Output")
+                        CreateTab(successlist, "Success Output",0,0)
                         MenuChoiceGen({"Yes": 0}, "Continue", skip=1)
                 elif checkoption == 1:
                     if len(failedlist) !=0:
-                        CreateTab(failedlist, "Failed Output")
+                        CreateTab(failedlist, "Failed Output",0,1)
                         MenuChoiceGen({"Yes": 0}, "Continue", skip=1)
                 elif checkoption == 2:
                     return
