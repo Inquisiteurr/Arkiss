@@ -24,14 +24,18 @@ global_arkiss = """
 """
 
 
-def CreateTab(data, title):
-    username = Config().checksetting('global_username')
+def CreateTab(data, title, contest=0):
     table = PrettyTable()
     table.field_names = ["IP", "Output"]
-    for ip, output in data:
-        color = "green" if username in output else "red"
-        output = "error" if "error" in output else output
-        table.add_row([ip, f"\033[1;31;40m {output} \033[m" if color == "red" else f"\033[1;32;40m {output} \033[m"])
+    if contest == 1:
+        username = Config().checksetting('global_username')
+        for ip, output in data:
+            color = "green" if username in output else "red"
+            table.add_row([ip, f"\033[1;31;40m {output} \033[m" if color == "red" else f"\033[1;32;40m {output} \033[m"])
+    else:
+        for ip, output in data:
+            color = "red" if "error" in output else "green"
+            table.add_row([ip, f"\033[1;31;40m {output} \033[m" if color == "red" else f"\033[1;32;40m {output} \033[m"])
     print(title)
     print(table)
 
@@ -353,9 +357,9 @@ class Secondmenu:
         command = "whoami"
         successlist, failedlist = CommandExecutor().Conchoice(command)
         if len(successlist) !=0:
-            CreateTab(successlist, "Success Output")
+            CreateTab(successlist, "Success Output",1)
         if len(failedlist) !=0:
-            CreateTab(failedlist, "Failed Output")
+            CreateTab(failedlist, "Failed Output",1)
         message = "[ Back to divers menu ] "
         choicelist = {"Yes": 0}
         MenuChoiceGen(choicelist, message, skip=1)
