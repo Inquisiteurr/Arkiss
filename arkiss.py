@@ -226,28 +226,19 @@ class CommandExecutor:
         choicelist = {"Yes": 0, "No": 1}
         checkdebug = MenuChoiceGen(choicelist, message, skip=1)
         if checkdebug == 0:
-            debug_lists = [(successlist, [i for ip, i in successlist], f"Success({len(successlist)})"), 
-                        (failedlist, [i for ip, i in failedlist], f"Failed({len(failedlist)})")]
             while True:
                 message = "[ Debug menu ] - Please chose an option"
-                choicelist = {label: idx for idx, (_, _, label) in enumerate(debug_lists)}
-                choicelist["Continue"] = 2
+                choicelist = {f"Success({len(successlist)})":0, f"Failed({len(failedlist)})":1, "Continue":2 }
                 checkoption = MenuChoiceGen(choicelist, message)
-                if checkoption in [0, 1]:
-                    listmenu, listdebugprint, _ = debug_lists[checkoption]
-                    listmenu.append("Back to Debug menu")
-                    listdebugprint.append("return")
-                    while True:
-                        menu = f" [ {list(choicelist.keys())[checkoption]} results ] - Please chose an ip to see the results"
-                        option = MenuChoiceGen({ip: result for ip, result in zip(listmenu, listdebugprint)}, menu, skip=1)
-                        if option == "return":
-                            listmenu.pop()
-                            break
-                        else:
-                            print(option)
-                            listmenu.pop()
-                            break
-                else:
+                if checkoption == 0:
+                    if len(successlist) !=0:
+                        CreateTab(successlist, "Success Output")
+                        MenuChoiceGen({"Yes": 0}, "Continue", skip=1)
+                elif checkoption == 1:
+                    if len(failedlist) !=0:
+                        CreateTab(failedlist, "Failed Output")
+                        MenuChoiceGen({"Yes": 0}, "Continue", skip=1)
+                elif checkoption == 2:
                     return
         else:
             return
