@@ -145,7 +145,7 @@ class CommandExecutor:
         failed = None
         if "custom/windows" in command:
             conn = SMBConnection(self.username, self.password, 'Arkiss', ip, use_ntlm_v2=True)
-            assert conn.connect(server, 139)
+            assert conn.connect(ip, 139)
             with open("command", 'rb') as file_obj:
                 conn.storeFile('C$', '\\temp\\', file_obj)
             c = Client(ip, username=self.username, password=self.password, encrypt=self.encrypt)
