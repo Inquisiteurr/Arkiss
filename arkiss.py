@@ -156,11 +156,13 @@ class CommandExecutor:
                 c.create_service()
                 stdout, stderr, rc = c.run_executable("powershell.exe", arguments=f"-File C:\\temp\\" + script)
                 decoded_output = stdout.decode('ISO-8859-1')
-                print(stdout)
-                print(decoded_output)
-                print(f"{ip}\t\033[92mSuccess\033[0m")
-                print(decoded_output)
-                success = (ip, decoded_output)
+                decoded_error = stderr.decode('ISO-8859-1')
+                if stdout:
+                    print(f"{ip}\t\033[92mSuccess\033[0m")
+                    success = (ip, decoded_output)
+                if stderr:
+                    print(f"{ip}\t\033[91mFailed\033[0m")
+                    failed = (ip, decoded_error)
                 c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
                 c.remove_service()
                 c.disconnect()
