@@ -146,26 +146,26 @@ class CommandExecutor:
         failed = None
         c = Client(ip, username=self.username, password=self.password, encrypt=self.encrypt)
         if "custom/windows" in command:
-            conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
-            if conn.connect(ip, 445):
-                print("success")
-            #try:
-            #with open("command", 'rb') as file_obj:
-            #    conn.storeFile('C$', '\\temp\\', file_obj)
-            #script = command.split('/')[-1]
-            #c.connect()
-            #c.create_service()
-            #stdout, stderr, rc = c.run_executable("powershell.exe", arguments=f"-File C:\\temp\\" + script)
-            #stdout, stderr, rc = c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
-            #decoded_output = stdout.decode('ISO-8859-1')
-            #print(f"{ip}\t\033[92mSuccess\033[0m")
-            #print(decoded_output)
-            #success = (ip, decoded_output)
-            #c.remove_service()
-            #c.disconnect()
-            #except Exception as e:
-            #print(f"{ip}\t\033[91mFailed\033[0m")
-            #failed = (ip, str(e))
+            try:
+                conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
+                assert conn.connect(ip, 445)
+                with open("command", 'rb') as file_obj:
+                    conn.storeFile('C$', '\\temp\\', file_obj)
+                script = command.split('/')[-1]
+                c.connect()
+                c.create_service()
+                stdout, stderr, rc = c.run_executable("powershell.exe", arguments=f"-File C:\\temp\\" + script)
+                stdout, stderr, rc = c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
+                decoded_output = stdout.decode('ISO-8859-1')
+                print(f"{ip}\t\033[92mSuccess\033[0m")
+                print(decoded_output)
+                success = (ip, decoded_output)
+                c.remove_service()
+                c.disconnect()
+                conn.close()
+            except Exception as e:
+                print(f"{ip}\t\033[91mFailed\033[0m")
+                failed = (ip, str(e))
         else:
             try:
                 c.connect()
