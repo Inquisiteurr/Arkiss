@@ -162,6 +162,7 @@ class CommandExecutor:
                 c.remove_service()
                 c.disconnect()
             except Exception as e:
+                print(str(e))
                 print(f"{ip}\t\033[91mFailed\033[0m")
                 failed = (ip, str(e))
 
