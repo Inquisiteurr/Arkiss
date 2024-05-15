@@ -164,7 +164,6 @@ class CommandExecutor:
 #except Exception as e:
 #print(f"{ip}\t\033[91mFailed\033[0m")
 #failed = (ip, str(e))
-
         else:
             try:
                 c.connect()
