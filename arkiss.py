@@ -149,6 +149,7 @@ class CommandExecutor:
             try:
                 conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
                 assert conn.connect(ip, 445)
+                conn.listPath('C$')
                 with open(command, 'rb') as file_obj:
                     conn.storeFile('C$', '\\temp\\', file_obj, show_progress=True)
                 script = command.split('/')[-1]
