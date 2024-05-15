@@ -8,6 +8,7 @@ import inquirer
 import yaml
 import base64
 import inspect
+import uuid
 
 ############################ GLOBALS ############################
 global global_arkiss
