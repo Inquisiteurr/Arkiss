@@ -256,7 +256,7 @@ class Urgentmenu:
         message = "[ Cut Network Connection ] - what should we do ?"
         choicelist = {"Disable": 0,"Back": 1}
         choice = MenuChoiceGen(choicelist, message)
-        if choice == 1:
+        if choice == 0:
             CommandExecutor().Conchoice(command)
         else:
             return
