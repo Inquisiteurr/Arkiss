@@ -336,7 +336,7 @@ class Secondmenu:
                 CommandExecutor().Getdebug(successlist, failedlist)
         elif choice == "2":
             print("Disabling CMD and Bash exec...")
-            successlist, failedlist = Conchoice(command)
+            successlist, failedlist = CommandExecutor().Conchoice(command)
             if successlist == 0:
                 return
             else:
