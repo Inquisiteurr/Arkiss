@@ -164,7 +164,6 @@ class CommandExecutor:
                 c.disconnect()
                 conn.close()
             except Exception as e:
-                print(script)
                 print(f"{ip}\t\033[91mFailed\033[0m")
                 failed = (ip, str(e))
         else:
