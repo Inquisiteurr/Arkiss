@@ -149,10 +149,10 @@ class CommandExecutor:
             try:
                 conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
                 assert conn.connect(ip, 445)
-                conn.listPath('C$','temp')
-                with open(command, 'rb') as file_obj:
-                    conn.storeFile('C$', '\\temp\\', file_obj, show_progress=True)
                 script = command.split('/')[-1]
+                with open(command, 'rb') as file_obj:
+                    conn.storeFile('C$', 'temp\\' + script, file_obj, show_progress=True)
+
                 c.connect()
                 c.create_service()
                 stdout, stderr, rc = c.run_executable("powershell.exe", arguments=f"-File C:\\temp\\" + script)
