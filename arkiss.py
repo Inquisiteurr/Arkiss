@@ -151,7 +151,7 @@ class CommandExecutor:
                 assert conn.connect(ip, 445)
                 script = command.split('/')[-1]
                 with open(command, 'rb') as file_obj:
-                    conn.storeFile('C$', '\\temp\\' + script, file_obj, show_progress=True)
+                    conn.storeFile('C$', '/' + script, file_obj, show_progress=True)
                 c.connect()
                 c.create_service()
                 stdout, stderr, rc = c.run_executable("powershell.exe", arguments=f"-File C:\\temp\\" + script)
