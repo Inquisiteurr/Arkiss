@@ -149,7 +149,8 @@ class CommandExecutor:
         if "custom/windows" in command:
             #conn = SMBConnection(self.username, self.password, 'Arkiss', ip, use_ntlm_v2=True)
             #try:
-            connection = Connection(server_name=ip, port=139)
+            guid = uuid.uuid4()
+            connection = Connection(server_name=ip, port=139, guid=guid)
             connection.connect()
             session = Session(connection, username=self.username, password=self.password)
             session.connect()
