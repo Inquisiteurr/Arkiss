@@ -1,1 +1,1 @@
-Write-Host "Hello world"
+whoami
