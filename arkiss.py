@@ -452,7 +452,7 @@ class Mainmenu:
     @menu_option("Urgent tasks")
     def Urgent(self):
         urgentmenu = Urgentmenu()
-        urgentmenu_dict = create_menu_dict(mainmenu)
+        urgentmenu_dict = create_menu_dict(urgentmenu)
         while True:
             message = "[ Urgent menu ] - Please chose an option"
             function = MenuChoiceGen(urgentmenu_dict, message)
