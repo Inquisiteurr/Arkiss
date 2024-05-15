@@ -6,6 +6,7 @@ import inquirer
 import yaml
 import base64
 import inspect
+import socket
 
 ############################ GLOBALS ############################
 global global_arkiss
