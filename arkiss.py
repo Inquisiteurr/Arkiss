@@ -378,8 +378,9 @@ class Secondmenu:
             message = "[ Wich script  do you want to use?  ] - Please chose an option"
             files = os.listdir(folder)
             listfile = {file: i for i, file in enumerate(files)}
-            fileanswer = MenuChoiceGen(listfile, message)
-            command = folder + str(listfile[fileanswer]) 
+            index = MenuChoiceGen(listfile, message)
+            fileanswer = files[index]
+            command = folder + str(fileanswer)
             successlist, failedlist = CommandExecutor().Conchoice(command)
             if successlist == 0:
                 return
