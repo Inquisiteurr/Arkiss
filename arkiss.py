@@ -456,7 +456,7 @@ class Mainmenu:
         while True:
             message = "[ Urgent menu ] - Please chose an option"
             function = MenuChoiceGen(urgentmenu_dict, message)
-            if function == diversmenu.do_nothing:
+            if function == urgentmenu.do_nothing:
                 return
             else:
                 function()
