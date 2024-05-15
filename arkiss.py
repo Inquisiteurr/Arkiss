@@ -267,7 +267,7 @@ class Urgentmenu:
         message = "[ Shutdown Computers ] - what should we do ?"
         choicelist = {"shutdown": 0,"Back": 1}
         choice = MenuChoiceGen(choicelist, message)
-        if choice == 1:
+        if choice == 0:
             CommandExecutor().Conchoice(command)
         else:
             return
