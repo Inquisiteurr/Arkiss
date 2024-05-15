@@ -1,5 +1,7 @@
 from prettytable import PrettyTable
-from smb.SMBConnection import SMBConnection
+from smbprotocol.connection import Connection
+from smbprotocol.session import Session
+from smbprotocol.tree import TreeConnect
 from pypsexec.client import Client
 import os
 import inquirer
