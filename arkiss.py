@@ -1,14 +1,11 @@
 from prettytable import PrettyTable
-from smbprotocol.connection import Connection
-from smbprotocol.session import Session
-from smbprotocol.tree import TreeConnect
+from smb.SMBConnection import SMBConnection
 from pypsexec.client import Client
 import os
 import inquirer
 import yaml
 import base64
 import inspect
-import uuid
 
 ############################ GLOBALS ############################
 global global_arkiss
@@ -148,15 +145,10 @@ class CommandExecutor:
         failed = None
         c = Client(ip, username=self.username, password=self.password, encrypt=self.encrypt)
         if "custom/windows" in command:
-            #conn = SMBConnection(self.username, self.password, 'Arkiss', ip, use_ntlm_v2=True)
+            conn = SMBConnection(self.username, self.password, 'Arkiss', ip, use_ntlm_v2=True)
+            if conn.connect(ip, 445):
+                print("success")
             #try:
-            guid = uuid.uuid4()
-            connection = Connection(server_name=ip, port=139, guid=guid)
-            connection.connect()
-            session = Session(connection, username=self.username, password=self.password)
-            session.connect()
-            tree = TreeConnect(session, share="C$")
-            tree.connect()
             #with open("command", 'rb') as file_obj:
             #    conn.storeFile('C$', '\\temp\\', file_obj)
             #script = command.split('/')[-1]
