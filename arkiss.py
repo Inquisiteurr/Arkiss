@@ -154,6 +154,9 @@ class CommandExecutor:
                     conn.storeFile('C$', '\\temp\\' + script, file_obj, show_progress=True)
                 c.connect()
                 c.create_service()
+                stdout, stderr, rc = c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
+                if stdout:
+                    print(f"{ip}\t\033[92mSuccess, Execution....\033[0m")
                 stdout, stderr, rc = c.run_executable("powershell.exe", arguments=f"-File C:\\temp\\" + script)
                 decoded_output = stdout.decode('ISO-8859-1')
                 decoded_error = stderr.decode('ISO-8859-1')
@@ -174,6 +177,9 @@ class CommandExecutor:
             try:
                 c.connect()
                 c.create_service()
+                stdout, stderr, rc = c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
+                if stdout:
+                    print(f"{ip}\t\033[92mSuccess, Execution....\033[0m")
                 stdout, stderr, rc = c.run_executable("powershell.exe", arguments=command)
                 decoded_output = stdout.decode('ISO-8859-1')
                 decoded_error = stderr.decode('ISO-8859-1')
@@ -428,6 +434,13 @@ class Mainmenu:
     @order(3)
     @menu_option("Check Windows Missing Updates")
     def Chkwinupdate(self):
+
+        command = "Get-Package -Name PSWindowsUpdate"
+        successlist, failedlist = CommandExecutor().Conchoice(command)
+        if successlist == 0:
+            command = "Install-Module -Name PSWindowsUpdate -force"
+            CommandExecutor().Conchoice(command)
+
         command = "Get-WindowsUpdate"
         successlist, failedlist = CommandExecutor().Conchoice(command)
         if successlist == 0:
