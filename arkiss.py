@@ -437,14 +437,13 @@ class Mainmenu:
 
         command = "Get-Package -Name PSWindowsUpdate"
         successlist, failedlist = CommandExecutor().Conchoice(command)
-        print(len(successlist))
-        if successlist != 0:
+        if len(successlist) == 0:
             command = "Install-Module -Name PSWindowsUpdate -force"
             CommandExecutor().Conchoice(command)
 
         command = "Get-WindowsUpdate"
         successlist, failedlist = CommandExecutor().Conchoice(command)
-        if successlist == 0:
+        if len(successlist) == 0:
             pass
         else:
             CommandExecutor().Getdebug(successlist, failedlist)
@@ -456,7 +455,7 @@ class Mainmenu:
             else:
                 command = "Install - WindowsUpdate - AcceptAll"
                 successlist, failedlist = CommandExecutor().Conchoice(command)
-                if successlist == 0:
+                if len(successlist) == 0:
                     pass
                 else:
                     CommandExecutor().Getdebug(successlist, failedlist)
