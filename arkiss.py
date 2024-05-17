@@ -444,7 +444,11 @@ class Mainmenu:
         command = "Get-WindowsUpdate"
         successlist, failedlist = CommandExecutor().Conchoice(command)
         if len(successlist) == 0:
-            pass
+            message = "[ Windows update ] - return ?"
+            mainmenu = {"Back":0,}
+            choice = MenuChoiceGen(mainmenu, message)
+            if choice :
+                pass
         else:
             CommandExecutor().Getdebug(successlist, failedlist)
             message = "[ Windows update ] - Launch Updates ?"
