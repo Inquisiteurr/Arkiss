@@ -436,11 +436,7 @@ class Mainmenu:
             script = path.split('/')[-1]
             command='powershell -ep bypass -c ". .\C:\\temp\\PrivescCheck.ps1; Invoke-PrivescCheck -Extended -Report C:\\temp\\PrivescCheck_$($env:COMPUTERNAME) -Format HTML"'
             successlist, failedlist = CommandExecutor().Conchoice(command,path)
-            if successlist == 0:
-                return
-            else:
-                CommandExecutor().Getdebug(successlist, failedlist)
-        print("Test d'audit windows")
+            CommandExecutor().Getdebug(successlist, failedlist)
     @order(2)
     @menu_option("Windows Security Remediation")
     def Winauditrem(self):
