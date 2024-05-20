@@ -429,6 +429,17 @@ class Mainmenu:
     @order(1)
     @menu_option("Windows Security Check")
     def Winaudit(self):
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        if choice == 0:
+            file = "mainscripts/windows/PrivescCheck.ps1"
+            path = os.path.join(dir_path, file)
+            script = path.split('/')[-1]
+            command='powershell -ep bypass -c ". .\C:\\temp\\PrivescCheck.ps1; Invoke-PrivescCheck -Extended -Report C:\\temp\\PrivescCheck_$($env:COMPUTERNAME) -Format HTML"'
+            successlist, failedlist = CommandExecutor().Conchoice(command,path)
+            if successlist == 0:
+                return
+            else:
+                CommandExecutor().Getdebug(successlist, failedlist)
         print("Test d'audit windows")
     @order(2)
     @menu_option("Windows Security Remediation")
