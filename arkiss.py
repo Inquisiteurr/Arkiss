@@ -141,38 +141,39 @@ class CommandExecutor:
         self.hostname = Config().checksetting('global_hostname')
         self.encrypt = encrypt
 
-    def Wincon(self, command, ip):
+    def Wincon(self, command, ip, file="nofile"):
         success = None
         failed = None
         c = Client(ip, username=self.username, password=self.password, encrypt=self.encrypt)
-        if "custom/windows" in command:
-            try:
-                conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
-                assert conn.connect(ip, 445)
-                script = command.split('/')[-1]
-                with open(command, 'rb') as file_obj:
-                    conn.storeFile('C$', '\\temp\\' + script, file_obj, show_progress=True)
-                c.connect()
-                c.create_service()
-                stdout, stderr, rc = c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
-                if stdout:
-                    print(f"{ip}\t\033[92mSuccess, Execution....\033[0m")
-                stdout, stderr, rc = c.run_executable("powershell.exe", arguments=f"-File C:\\temp\\" + script)
-                decoded_output = stdout.decode('ISO-8859-1')
-                decoded_error = stderr.decode('ISO-8859-1')
-                if stdout:
-                    print(f"{ip}\t\033[92mSuccess\033[0m")
-                    success = (ip, decoded_output)
-                if stderr:
+        if file != "nofile":
+            if "windows" in file:
+                try:
+                    conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
+                    assert conn.connect(ip, 445)
+                    script = command.split('/')[-1]
+                    with open(file, 'rb') as file_obj:
+                        conn.storeFile('C$', '\\temp\\' + script, file_obj, show_progress=True)
+                    c.connect()
+                    c.create_service()
+                    stdout, stderr, rc = c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
+                    if stdout:
+                        print(f"{ip}\t\033[92mSuccess, Execution....\033[0m")
+                    stdout, stderr, rc = c.run_executable("powershell.exe", arguments=command)
+                    decoded_output = stdout.decode('ISO-8859-1')
+                    decoded_error = stderr.decode('ISO-8859-1')
+                    if stdout:
+                        print(f"{ip}\t\033[92mSuccess\033[0m")
+                        success = (ip, decoded_output)
+                    if stderr:
+                        print(f"{ip}\t\033[91mFailed\033[0m")
+                        failed = (ip, decoded_error)
+                    c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
+                    c.remove_service()
+                    c.disconnect()
+                    conn.close()
+                except Exception as e:
                     print(f"{ip}\t\033[91mFailed\033[0m")
-                    failed = (ip, decoded_error)
-                c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
-                c.remove_service()
-                c.disconnect()
-                conn.close()
-            except Exception as e:
-                print(f"{ip}\t\033[91mFailed\033[0m")
-                failed = (ip, str(e))
+                    failed = (ip, str(e))
         else:
             try:
                 c.connect()
@@ -196,15 +197,15 @@ class CommandExecutor:
                 failed = (ip, str(e))
         return success, failed
 
-    def Getlists(self, command, ip, successlist, failedlist):
-        success, failed = self.Wincon(command, ip)
+    def Getlists(self, command, ip, successlist, failedlist,file="nofile"):
+        success, failed = self.Wincon(command, ip,file)
         if success is not None:
             successlist.append(success)
         if failed is not None:
             failedlist.append(failed)
         return successlist, failedlist
     
-    def Conchoice(self, command):
+    def Conchoice(self, command,file="nofile"):
         successlist = []
         failedlist = []
 
@@ -220,7 +221,7 @@ class CommandExecutor:
                     with open(self.ipfile, 'r') as file:
                         ips = file.read().splitlines()
                     for ip in ips:
-                        successlist, failedlist = self.Getlists(command, ip, successlist, failedlist)
+                        successlist, failedlist = self.Getlists(command, ip, successlist, failedlist,file)
 
                 else:
                     Settings().Host(0)
@@ -228,17 +229,17 @@ class CommandExecutor:
                     with open(ipfilechanged, 'r') as file:
                         ips = file.read().splitlines()
                     for ip in ips:
-                        successlist, failedlist = self.Getlists(command, ip, successlist, failedlist)
+                        successlist, failedlist = self.Getlists(command, ip, successlist, failedlist,file)
 
             elif choice == 1:
                 Settings().Host(1)
                 ip = Config().checksetting('global_hostname')
-                successlist, failedlist = self.Getlists(command, ip, successlist, failedlist)
+                successlist, failedlist = self.Getlists(command, ip, successlist, failedlist,file)
             else:
                 return 0, 0
         else:
             ip = self.hostname
-            successlist, failedlist = self.Getlists(command, ip, successlist, failedlist)
+            successlist, failedlist = self.Getlists(command, ip, successlist, failedlist,file)
 
         return successlist, failedlist
 
@@ -395,8 +396,10 @@ class Secondmenu:
             listfile = {file: i for i, file in enumerate(files)}
             index = MenuChoiceGen(listfile, message)
             fileanswer = files[index]
-            command = folder + str(fileanswer)
-            successlist, failedlist = CommandExecutor().Conchoice(command)
+            file = folder + str(fileanswer)
+            script = file.split('/')[-1]
+            command:f"-File C:\\temp\\" + script
+            file, failedlist = CommandExecutor().Conchoice(command,file)
             if successlist == 0:
                 return
             else:
