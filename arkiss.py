@@ -398,7 +398,7 @@ class Secondmenu:
             fileanswer = files[index]
             file = folder + str(fileanswer)
             script = file.split('/')[-1]
-            command:f"-File C:\\temp\\" + script
+            command=f"-File C:\\temp\\" + script
             file, failedlist = CommandExecutor().Conchoice(command,file)
             if successlist == 0:
                 return
