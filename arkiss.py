@@ -380,7 +380,7 @@ class Secondmenu:
     @order(6)
     @menu_option("Check Health")
     def HealtRepport(self):
-        commandsystem = 'powershell -ep bypass -c ". .\C:\\temp\\systeminfo.ps1"'
+        commandsystem = "powershell C:\\temp\\systeminfo.ps1"
         commandbattery = "powercfg /batteryreport"
         commandremovefile = "cleanmgr /sagerun:1 | cleanmgr /autoclean"
         commandcheckdisk = "chkdsk"
@@ -470,7 +470,7 @@ class Mainmenu:
         dir_path = os.path.dirname(os.path.realpath(__file__))
         file = "mainscripts/windows/PrivescCheck.ps1"
         path = os.path.join(dir_path, file)
-        command=". .\\C:\\temp\\PrivescCheck.ps1; Invoke-PrivescCheck -Extended -Report C:\\temp\\PrivescCheck_$($env:COMPUTERNAME) -Format HTML"
+        command="Import-Module C:\\temp\\PrivescCheck.ps1; Invoke-PrivescCheck -Extended -Report C:\\temp\\PrivescCheck_$($env:COMPUTERNAME) -Format HTML"
         successlist, failedlist = CommandExecutor().Conchoice(command,path)
         CommandExecutor().Getdebug(successlist, failedlist)
     @order(2)
