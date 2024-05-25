@@ -382,6 +382,48 @@ class Secondmenu:
         choicelist = {"Yes": 0}
         MenuChoiceGen(choicelist, message, skip=1)
     @order(7)
+    @menu_option("Check Health")
+    def HealtRepport(self):
+        commandsystem = 'powershell -ep bypass -c ". .\C:\\temp\\systeminfo.ps1"'
+        commandbattery = "powercfg /batteryreport"
+        commandremovefile = "cleanmgr /sagerun:1 | cleanmgr /autoclean"
+        commandcheckdisk = "chkdsk"
+        commandDISM = "DISM /Online /Cleanup-Image /CheckHealth | DISM /Online /Cleanup-Image /RestoreHealth "
+        commandSFC = "SFC /scannow"
+
+        message = "[ Here you have a lot of options ] - what do you want ?"
+        choicelist = {"Have a report on the system": 0,
+                    "Have a report on the battery health": 1,
+                    "Remove useless file on your disk": 2,
+                    "Check your disk": 3,
+                    "Scan and repair your windows image": 4,
+                    "Verify your system file": 5,
+                    "Back": 6}
+        choice = MenuChoiceGen(choicelist, message)
+        if choice == 0:
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        file = "mainscripts/windows/systeminfo.ps1"
+        path = os.path.join(dir_path, file)
+        successlist, failedlist = CommandExecutor().Conchoice(commandsystem,path)
+        CommandExecutor().Getdebug(successlist, failedlist)
+        if choice == 1:
+        successlist, failedlist = CommandExecutor().Conchoice(commandbattery)
+        CommandExecutor().Getdebug(successlist, failedlist)
+        if choice == 2:
+        successlist, failedlist = CommandExecutor().Conchoice(commandremovefile)
+        CommandExecutor().Getdebug(successlist, failedlist)
+        if choice == 3:
+        successlist, failedlist = CommandExecutor().Conchoice(commandcheckdisk)
+        CommandExecutor().Getdebug(successlist, failedlist)
+        if choice == 4:
+        successlist, failedlist = CommandExecutor().Conchoice(commandDISM)
+        CommandExecutor().Getdebug(successlist, failedlist)
+        if choice == 5:
+        successlist, failedlist = CommandExecutor().Conchoice(commandSFC)
+        CommandExecutor().Getdebug(successlist, failedlist)
+        else:
+            return
+    @order(8)
     @menu_option("Custom script execution")
     def Custom(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
