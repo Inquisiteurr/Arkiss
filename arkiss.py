@@ -167,7 +167,7 @@ class CommandExecutor:
                     if stderr:
                         print(f"{ip}\t\033[91mFailed\033[0m")
                         failed = (ip, decoded_error)
-                    c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
+                    #c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
                     c.remove_service()
                     c.disconnect()
                     conn.close()
