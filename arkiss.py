@@ -470,7 +470,7 @@ class Mainmenu:
         dir_path = os.path.dirname(os.path.realpath(__file__))
         file = "mainscripts/windows/PrivescCheck.ps1"
         path = os.path.join(dir_path, file)
-        command='powershell -ep bypass -c ". .\C:\\temp\\PrivescCheck.ps1; Invoke-PrivescCheck -Extended -Report C:\\temp\\PrivescCheck_$($env:COMPUTERNAME) -Format HTML"'
+        command=". .\\C:\\temp\\PrivescCheck.ps1 | Invoke-PrivescCheck -Extended -Report C:\\temp\\PrivescCheck_$($env:COMPUTERNAME) -Format HTML"
         successlist, failedlist = CommandExecutor().Conchoice(command,path)
         CommandExecutor().Getdebug(successlist, failedlist)
     @order(2)
