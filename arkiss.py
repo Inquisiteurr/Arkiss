@@ -401,26 +401,26 @@ class Secondmenu:
                     "Back": 6}
         choice = MenuChoiceGen(choicelist, message)
         if choice == 0:
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        file = "mainscripts/windows/systeminfo.ps1"
-        path = os.path.join(dir_path, file)
-        successlist, failedlist = CommandExecutor().Conchoice(commandsystem,path)
-        CommandExecutor().Getdebug(successlist, failedlist)
+            dir_path = os.path.dirname(os.path.realpath(__file__))
+            file = "mainscripts/windows/systeminfo.ps1"
+            path = os.path.join(dir_path, file)
+            successlist, failedlist = CommandExecutor().Conchoice(commandsystem,path)
+            CommandExecutor().Getdebug(successlist, failedlist)
         if choice == 1:
-        successlist, failedlist = CommandExecutor().Conchoice(commandbattery)
-        CommandExecutor().Getdebug(successlist, failedlist)
+            successlist, failedlist = CommandExecutor().Conchoice(commandbattery)
+            CommandExecutor().Getdebug(successlist, failedlist)
         if choice == 2:
-        successlist, failedlist = CommandExecutor().Conchoice(commandremovefile)
-        CommandExecutor().Getdebug(successlist, failedlist)
+            successlist, failedlist = CommandExecutor().Conchoice(commandremovefile)
+            CommandExecutor().Getdebug(successlist, failedlist)
         if choice == 3:
-        successlist, failedlist = CommandExecutor().Conchoice(commandcheckdisk)
-        CommandExecutor().Getdebug(successlist, failedlist)
+            successlist, failedlist = CommandExecutor().Conchoice(commandcheckdisk)
+            CommandExecutor().Getdebug(successlist, failedlist)
         if choice == 4:
-        successlist, failedlist = CommandExecutor().Conchoice(commandDISM)
-        CommandExecutor().Getdebug(successlist, failedlist)
+            successlist, failedlist = CommandExecutor().Conchoice(commandDISM)
+            CommandExecutor().Getdebug(successlist, failedlist)
         if choice == 5:
-        successlist, failedlist = CommandExecutor().Conchoice(commandSFC)
-        CommandExecutor().Getdebug(successlist, failedlist)
+            successlist, failedlist = CommandExecutor().Conchoice(commandSFC)
+            CommandExecutor().Getdebug(successlist, failedlist)
         else:
             return
     @order(8)
