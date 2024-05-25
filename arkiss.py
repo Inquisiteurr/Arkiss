@@ -295,14 +295,10 @@ class Urgentmenu:
 
 class Secondmenu:
     @order(0)
-    @menu_option("Windows image scan")  
-    def Winimscan(self):
-        print("Work in progress..")
-    @order(1)
     @menu_option("Bitlocker crypting management")
     def BitlockManage(self):
         print("Work in progress..")
-    @order(2)
+    @order(1)
     @menu_option("Remote Desktop Protocol management")
     def RDPManage(self):
         registrykey = "Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value "
@@ -324,7 +320,7 @@ class Secondmenu:
                 CommandExecutor().Getdebug(successlist, failedlist)
         else:
             return
-    @order(3)
+    @order(2)
     @menu_option("Command Line management")
     def CMDManage(self):
         registrykey = "Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows\System' -Name 'DisableCMD' -Value "
@@ -361,15 +357,15 @@ class Secondmenu:
         else:
             return
         return
-    @order(4)
+    @order(3)
     @menu_option("Local Admin User management")
     def AdminManage(self):
         print("Work in progress..")
-    @order(5)
+    @order(4)
     @menu_option("Force authentication after sleep mode")
     def AuthSleepMode(self):
         print("Work in progress..")
-    @order(6)
+    @order(5)
     @menu_option("Test the connection/credentials")
     def Contest(self):
         command = "whoami"
@@ -381,7 +377,7 @@ class Secondmenu:
         message = "[ Back to divers menu ] "
         choicelist = {"Yes": 0}
         MenuChoiceGen(choicelist, message, skip=1)
-    @order(7)
+    @order(6)
     @menu_option("Check Health")
     def HealtRepport(self):
         commandsystem = 'powershell -ep bypass -c ". .\C:\\temp\\systeminfo.ps1"'
@@ -423,7 +419,7 @@ class Secondmenu:
             CommandExecutor().Getdebug(successlist, failedlist)
         else:
             return
-    @order(8)
+    @order(7)
     @menu_option("Custom script execution")
     def Custom(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
