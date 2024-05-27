@@ -380,7 +380,7 @@ class Secondmenu:
     @menu_option("Check Health")
     def HealtRepport(self):
         commandsystem = "powershell C:\\temp\\systeminfo.ps1"
-        commandbattery = "powercfg /batteryreport"
+        commandbattery = "powercfg /batteryreport /output 'C:\\temp\\batteryreport.html'"
         commandremovefile = "cleanmgr /sagerun:1 | cleanmgr /autoclean"
         commandcheckdisk = "chkdsk"
         commandDISM = "DISM /Online /Cleanup-Image /CheckHealth | DISM /Online /Cleanup-Image /RestoreHealth "
