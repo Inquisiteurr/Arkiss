@@ -83,7 +83,6 @@ class Config:
         with open(self.filename, 'w') as f:
             yaml.dump(config, f, default_flow_style=False)
 
-
 class Settings:
     def __init__(self, folder='hostfile'):
         self.dir_path = os.path.dirname(os.path.realpath(__file__))
