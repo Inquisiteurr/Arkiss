@@ -296,7 +296,14 @@ class Secondmenu:
     @order(0)
     @menu_option("Bitlocker crypting management")
     def BitlockManage(self):
-        print("Work in progress..")
+        command = "Enable-BitLocker -MountPoint 'C:' -RecoveryPasswordProtector -RecoveryKeyPath 'C:\temp\BitLocker$env:COMPUTERNAME-RecoveryKey.bek' -EncryptionMethod Aes128 -SkipHardwareTest -UsedSpaceOnl"
+        message = "[ Shutdown Computers ] - what should we do ?"
+        choicelist = {"Activate": 0,"Back": 1}
+        choice = MenuChoiceGen(choicelist, message)
+        if choice == 0:
+            CommandExecutor().Conchoice(command)
+        else:
+            return
     @order(1)
     @menu_option("Remote Desktop Protocol management")
     def RDPManage(self):
@@ -380,7 +387,7 @@ class Secondmenu:
     @menu_option("Check Health")
     def HealtRepport(self):
         commandsystem = "powershell C:\\temp\\systeminfo.ps1"
-        commandbattery = "powercfg /batteryreport /output 'C:\\temp\\batteryreport.html'"
+        commandbattery = 'powercfg /batteryreport /output "C:\\temp\\$env:COMPUTERNAMEbatteryreport.html"'
         commandremovefile = "cleanmgr /sagerun:1 | cleanmgr /autoclean"
         commandcheckdisk = "chkdsk"
         commandDISM = "DISM /Online /Cleanup-Image /CheckHealth | DISM /Online /Cleanup-Image /RestoreHealth "
