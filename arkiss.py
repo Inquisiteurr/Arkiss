@@ -399,6 +399,11 @@ class Secondmenu:
             CommandExecutor().Getdebug(successlist, failedlist)
         if choice == 1:
             successlist, failedlist = CommandExecutor().Conchoice(commandbattery)
+            if "battery" in commandbattery:
+                local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/battery')
+                print(local_reports_dir)
+            else:
+                local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/health')
             CommandExecutor().Getdebug(successlist, failedlist)
         if choice == 2:
             successlist, failedlist = CommandExecutor().Conchoice(commandremovefile)
