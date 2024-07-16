@@ -204,7 +204,6 @@ class CommandExecutor:
             conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
             assert conn.connect(ip, 445)
             shared_files = conn.listPath('C$', '\\temp\\')
-            local_file_path = os.path.join(local_reports_dir, report)
             html_files = [f for f in shared_files if f.filename.endswith('.html') and not f.isDirectory]
             latest_file = max(html_files, key=lambda f: f.last_write_time)
             report = latest_file.filename
