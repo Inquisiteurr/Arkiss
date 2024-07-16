@@ -301,7 +301,7 @@ class Secondmenu:
     @menu_option("Bitlocker crypting management")
     def BitlockManage(self):
         command = "Enable-BitLocker -MountPoint 'C:' -RecoveryPasswordProtector -RecoveryKeyPath 'C:\temp\BitLocker$env:COMPUTERNAME-RecoveryKey.bek' -EncryptionMethod Aes128 -SkipHardwareTest -UsedSpaceOnl"
-        message = "[ Shutdown Computers ] - what should we do ?"
+        message = "[ Encrypt Disk ] - what should we do ?"
         choicelist = {"Activate": 0,"Back": 1}
         choice = MenuChoiceGen(choicelist, message)
         if choice == 0:
