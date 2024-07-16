@@ -166,8 +166,6 @@ class CommandExecutor:
                     if stderr:
                         failed = (ip, decoded_error)
                     c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
-                    c.remove_service()
-                    c.disconnect()
                     conn.close()
                 except Exception as e:
                     print(f"{ip}\t\033[91mFailed\033[0m")
@@ -182,8 +180,6 @@ class CommandExecutor:
                     success = (ip, decoded_output)
                 if stderr:
                     failed = (ip, decoded_error)
-                c.remove_service()
-                c.disconnect()
             except Exception as e:
                 print(f"{ip}\t\033[91mFailed\033[0m")
                 failed = (ip, str(e))
@@ -198,7 +194,10 @@ class CommandExecutor:
             local_file_path = os.path.join(local_reports_dir, report)
             with open(local_file_path, 'wb') as local_file:
                 conn.retrieveFile('C$', '\\temp\\' + report, local_file, show_progress=True)
+            c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + report)
             conn.close()
+        c.remove_service()
+        c.disconnect()
         return success, failed
 
     def Getlists(self, command, ip, successlist, failedlist,file="nofile", isreport=0):
@@ -481,7 +480,7 @@ class Mainmenu:
         dir_path = os.path.dirname(os.path.realpath(__file__))
         file = "mainscripts/windows/PrivescCheck.ps1"
         path = os.path.join(dir_path, file)
-        command="Import-Module C:\\temp\\PrivescCheck.ps1; Invoke-PrivescCheck -Extended -Report C:\\temp\\PrivescCheck_$($env:COMPUTERNAME) -Format HTML"
+        command="Import-Module C:\\temp\\PrivescCheck.ps1; Invoke-PrivescCheck -Extended -Report C:\\temp\\$($env:COMPUTERNAME)-securityreport -Format HTML"
         successlist, failedlist = CommandExecutor().Conchoice(command,path,1)
         CommandExecutor().Getdebug(successlist, failedlist)
     @order(2)
