@@ -154,9 +154,8 @@ class CommandExecutor:
         if file != "nofile":
             if "windows" in file:
                 if "systeminfo.ps1" in file:
+                    isreport=1
                     local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/health')
-                    report = self.extract_file_path(file)
-                    local_file_path = os.path.join(local_reports_dir, report)
                 try:
                     c.connect()
                     c.create_service()
@@ -184,9 +183,8 @@ class CommandExecutor:
         else:
             try:
                 if "battery" in command:
+                    isreport=1
                     local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/battery')
-                    report = self.extract_file_path(command)
-                    local_file_path = os.path.join(local_reports_dir, report)
                 c.connect()
                 c.create_service()
                 c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
@@ -202,9 +200,15 @@ class CommandExecutor:
             except Exception as e:
                 print(f"{ip}\t\033[91mFailed\033[0m")
                 failed = (ip, str(e))
-        if report:
+        if isreport == 1:
             conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
             assert conn.connect(ip, 445)
+            shared_files = conn.listPath('C$', '\\temp\\')
+            local_file_path = os.path.join(local_reports_dir, report)
+            html_files = [f for f in shared_files if f.filename.endswith('.html') and not f.isDirectory]
+            latest_file = max(html_files, key=lambda f: f.last_write_time)
+            report = latest_file.filename
+            local_file_path = os.path.join(local_reports_dir, report)
             with open(local_file_path, 'wb') as local_file:
                 conn.retrieveFile('C$', '\\temp\\' + report, local_file, show_progress=True)
             conn.close()
