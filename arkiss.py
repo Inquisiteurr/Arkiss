@@ -146,6 +146,10 @@ class CommandExecutor:
         c = Client(ip, username=self.username, password=self.password, encrypt=self.encrypt)
         if file != "nofile":
             if "windows" in file:
+                if "battery" in command:
+                    local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/battery')
+                else:
+                    local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/health')
                 try:
                     c.connect()
                     c.create_service()
@@ -167,6 +171,9 @@ class CommandExecutor:
                     if stderr:
                         print(f"{ip}\t\033[91mFailed\033[0m")
                         failed = (ip, decoded_error)
+                    local_file_path = os.path.join(local_reports_dir, script)
+                    with open(local_file_path, 'wb') as local_file:
+                        conn.retrieveFile('C$', '\\temp\\' + script, local_file, show_progress=True)
                     #c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
                     c.remove_service()
                     c.disconnect()
