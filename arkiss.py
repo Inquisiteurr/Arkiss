@@ -188,8 +188,11 @@ class CommandExecutor:
             conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
             assert conn.connect(ip, 445)
             shared_files = conn.listPath('C$', '\\temp\\')
-            html_files = [f for f in shared_files if f.filename.endswith('.html') and not f.isDirectory]
-            latest_file = max(html_files, key=lambda f: f.last_write_time)
+            filtered_files = [
+                f for f in shared_files
+                if not f.filename.endswith(('.ps1', '.bat')) and not f.isDirectory
+            ]
+            latest_file = max(filtered_files, key=lambda f: f.last_write_time)
             report = latest_file.filename
             local_file_path = os.path.join(local_reports_dir, report)
             with open(local_file_path, 'wb') as local_file:
@@ -300,12 +303,12 @@ class Secondmenu:
     @order(0)
     @menu_option("Bitlocker crypting management")
     def BitlockManage(self):
-        command = "Enable-BitLocker -MountPoint 'C:' -RecoveryPasswordProtector -RecoveryKeyPath 'C:\temp\BitLocker$env:COMPUTERNAME-RecoveryKey.bek' -EncryptionMethod Aes128 -SkipHardwareTest -UsedSpaceOnl"
+        command = "Enable-BitLocker -MountPoint 'C:' -RecoveryPasswordProtector -RecoveryKeyPath 'C:\\temp\\$env:COMPUTERNAME-RecoveryKey.bek' -EncryptionMethod Aes128 -SkipHardwareTest -UsedSpaceOnl"
         message = "[ Encrypt Disk ] - what should we do ?"
         choicelist = {"Activate": 0,"Back": 1}
         choice = MenuChoiceGen(choicelist, message)
         if choice == 0:
-            CommandExecutor().Conchoice(command)
+            CommandExecutor().Conchoice(command,"nofile",1)
         else:
             return
     @order(1)
