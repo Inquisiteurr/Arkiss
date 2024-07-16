@@ -150,10 +150,11 @@ class CommandExecutor:
                     conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
                     assert conn.connect(ip, 445)
                     script = file.split('/')[-1]
-                    with open(file, 'rb') as file_obj:
-                        conn.storeFile('C$', '\\temp\\' + script, file_obj, show_progress=True)
                     c.connect()
                     c.create_service()
+                    c.run_executable("powershell.exe", arguments="if (!(Test-Path -Path 'C:\\temp')) { New-Item -ItemType Directory -Path 'C:\\temp' }")
+                    with open(file, 'rb') as file_obj:
+                        conn.storeFile('C$', '\\temp\\' + script, file_obj, show_progress=True)
                     stdout, stderr, rc = c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
                     if stdout:
                         print(f"{ip}\t\033[92mSuccess, Execution....\033[0m")
