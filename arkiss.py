@@ -150,14 +150,9 @@ class CommandExecutor:
                     c.connect()
                     c.create_service()
                     c.run_executable("powershell.exe", arguments="if (!(Test-Path -Path 'C:\\temp')) { New-Item -ItemType Directory -Path 'C:\\temp' }")
-                    c.remove_service()
-                    c.disconnect()
                     conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
                     assert conn.connect(ip, 445)
                     script = file.split('/')[-1]
-                    c.connect()
-                    c.create_service()
-                    c.run_executable("powershell.exe", arguments="if (!(Test-Path -Path 'C:\\temp')) { New-Item -ItemType Directory -Path 'C:\\temp' }")
                     with open(file, 'rb') as file_obj:
                         conn.storeFile('C$', '\\temp\\' + script, file_obj, show_progress=True)
                     stdout, stderr, rc = c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
@@ -393,7 +388,7 @@ class Secondmenu:
     @menu_option("Check Health")
     def HealtRepport(self):
         commandsystem = "powershell C:\\temp\\systeminfo.ps1"
-        commandbattery = 'powercfg /batteryreport /output "C:\\temp\\$env:COMPUTERNAMEbatteryreport.html"'
+        commandbattery = 'powercfg /batteryreport /output "C:\\temp\\$env:COMPUTERNAME-batteryreport.html"'
         commandremovefile = "cleanmgr /sagerun:1 | cleanmgr /autoclean"
         commandcheckdisk = "chkdsk"
         commandDISM = "DISM /Online /Cleanup-Image /CheckHealth | DISM /Online /Cleanup-Image /RestoreHealth "
