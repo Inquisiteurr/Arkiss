@@ -2,7 +2,6 @@ from prettytable import PrettyTable
 from smb.SMBConnection import SMBConnection
 from pypsexec.client import Client
 import os
-import time
 import inquirer
 import yaml
 import base64
