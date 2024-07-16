@@ -1,10 +1,6 @@
 inquirer
 pypsexec
 prettytable
-os
-prettytable
-yaml
-cryptography.fernet
-base64
-inspect
-smb.SMBConnection
+pyos
+pyyaml
+pysmb
