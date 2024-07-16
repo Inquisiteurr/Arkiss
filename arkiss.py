@@ -151,15 +151,15 @@ class CommandExecutor:
         success = None
         failed = None
         c = Client(ip, username=self.username, password=self.password, encrypt=self.encrypt)
+        c.connect()
+        c.create_service()
+        c.run_executable("powershell.exe", arguments="if (!(Test-Path -Path 'C:\\temp')) { New-Item -ItemType Directory -Path 'C:\\temp' }")
         if file != "nofile":
             if "windows" in file:
                 if "systeminfo.ps1" in file:
                     isreport=1
                     local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/health')
                 try:
-                    c.connect()
-                    c.create_service()
-                    c.run_executable("powershell.exe", arguments="if (!(Test-Path -Path 'C:\\temp')) { New-Item -ItemType Directory -Path 'C:\\temp' }")
                     conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
                     assert conn.connect(ip, 445)
                     script = file.split('/')[-1]
@@ -185,8 +185,6 @@ class CommandExecutor:
                 if "battery" in command:
                     isreport=1
                     local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/battery')
-                c.connect()
-                c.create_service()
                 c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
                 stdout, stderr, rc = c.run_executable("powershell.exe", arguments=command)
                 decoded_output = stdout.decode('ISO-8859-1')

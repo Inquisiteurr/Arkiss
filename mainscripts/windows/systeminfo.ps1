@@ -1,6 +1,6 @@
 # This script grabs system information using WMI and outputs it to a HTML report
 # File paths
-$reportPath = $PSScriptRoot + "\report.html"
+$reportPath = "C:\\temp\\$env:COMPUTERNAME-systemreport.html"
 $date = Get-Date
 # Computer info
 $ram = [math]::Round((Get-WmiObject Win32_OperatingSystem | Select -ExpandProperty TotalVisibleMemorySize)/1MB, 2)
