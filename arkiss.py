@@ -157,6 +157,7 @@ class CommandExecutor:
                     conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
                     assert conn.connect(ip, 445)
                     script = file.split('/')[-1]
+                    local_file_path = os.path.join(local_reports_dir, script)
                     with open(file, 'rb') as file_obj:
                         conn.storeFile('C$', '\\temp\\' + script, file_obj, show_progress=True)
                     stdout, stderr, rc = c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
@@ -168,11 +169,10 @@ class CommandExecutor:
                     if stdout:
                         print(f"{ip}\t\033[92mSuccess\033[0m")
                         success = (ip, decoded_output)
+                        print(local_file_path)
                     if stderr:
                         print(f"{ip}\t\033[91mFailed\033[0m")
                         failed = (ip, decoded_error)
-                    local_file_path = os.path.join(local_reports_dir, script)
-                    print(local_file_path)
                     with open(local_file_path, 'wb') as local_file:
                         conn.retrieveFile('C$', '\\temp\\' + script, local_file, show_progress=True)
                     #c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
