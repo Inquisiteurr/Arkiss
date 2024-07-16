@@ -141,13 +141,8 @@ class CommandExecutor:
         self.method = Config().checksetting('global_method')
         self.hostname = Config().checksetting('global_hostname')
         self.encrypt = encrypt
-    
-    def extract_file_path(self, string):
-        match = re.search(r'([a-zA-Z]:\\[^"]+)\.html', string)
-        if match:
-            return match.group(1)
-        return None
-    def Wincon(self, command, ip, file="nofile"):
+
+    def Wincon(self, command, ip, file="nofile", isreport=0):
         success = None
         failed = None
         c = Client(ip, username=self.username, password=self.password, encrypt=self.encrypt)
@@ -156,9 +151,6 @@ class CommandExecutor:
         c.run_executable("powershell.exe", arguments="if (!(Test-Path -Path 'C:\\temp')) { New-Item -ItemType Directory -Path 'C:\\temp' }")
         if file != "nofile":
             if "windows" in file:
-                if "systeminfo.ps1" in file:
-                    isreport=1
-                    local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/health')
                 try:
                     conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
                     assert conn.connect(ip, 445)
@@ -182,9 +174,6 @@ class CommandExecutor:
                     failed = (ip, str(e))
         else:
             try:
-                if "battery" in command:
-                    isreport=1
-                    local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/battery')
                 c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
                 stdout, stderr, rc = c.run_executable("powershell.exe", arguments=command)
                 decoded_output = stdout.decode('ISO-8859-1')
@@ -199,6 +188,7 @@ class CommandExecutor:
                 print(f"{ip}\t\033[91mFailed\033[0m")
                 failed = (ip, str(e))
         if isreport == 1:
+            local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports')
             conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
             assert conn.connect(ip, 445)
             shared_files = conn.listPath('C$', '\\temp\\')
@@ -211,15 +201,15 @@ class CommandExecutor:
             conn.close()
         return success, failed
 
-    def Getlists(self, command, ip, successlist, failedlist,file="nofile"):
-        success, failed = self.Wincon(command, ip,file)
+    def Getlists(self, command, ip, successlist, failedlist,file="nofile", isreport=0):
+        success, failed = self.Wincon(command, ip,file,isreport)
         if success is not None:
             successlist.append(success)
         if failed is not None:
             failedlist.append(failed)
         return successlist, failedlist
     
-    def Conchoice(self, command,file="nofile"):
+    def Conchoice(self, command,file="nofile", isreport=0):
         successlist = []
         failedlist = []
 
@@ -235,7 +225,7 @@ class CommandExecutor:
                     with open(self.ipfile, 'r') as file:
                         ips = file.read().splitlines()
                     for ip in ips:
-                        successlist, failedlist = self.Getlists(command, ip, successlist, failedlist,file)
+                        successlist, failedlist = self.Getlists(command, ip, successlist, failedlist,file,isreport)
 
                 else:
                     Settings().Host(0)
@@ -243,17 +233,17 @@ class CommandExecutor:
                     with open(ipfilechanged, 'r') as file:
                         ips = file.read().splitlines()
                     for ip in ips:
-                        successlist, failedlist = self.Getlists(command, ip, successlist, failedlist,file)
+                        successlist, failedlist = self.Getlists(command, ip, successlist, failedlist,file,isreport)
 
             elif choice == 1:
                 Settings().Host(1)
                 ip = Config().checksetting('global_hostname')
-                successlist, failedlist = self.Getlists(command, ip, successlist, failedlist,file)
+                successlist, failedlist = self.Getlists(command, ip, successlist, failedlist,file,isreport)
             else:
                 return 0, 0
         else:
             ip = self.hostname
-            successlist, failedlist = self.Getlists(command, ip, successlist, failedlist,file)
+            successlist, failedlist = self.Getlists(command, ip, successlist, failedlist,file,isreport)
 
         return successlist, failedlist
 
@@ -421,10 +411,10 @@ class Secondmenu:
             dir_path = os.path.dirname(os.path.realpath(__file__))
             file = "mainscripts/windows/systeminfo.ps1"
             path = os.path.join(dir_path, file)
-            successlist, failedlist = CommandExecutor().Conchoice(commandsystem,path)
+            successlist, failedlist = CommandExecutor().Conchoice(commandsystem,path,1)
             CommandExecutor().Getdebug(successlist, failedlist)
         if choice == 1:
-            successlist, failedlist = CommandExecutor().Conchoice(commandbattery)
+            successlist, failedlist = CommandExecutor().Conchoice(commandbattery,"nofile",1)
             CommandExecutor().Getdebug(successlist, failedlist)
         if choice == 2:
             successlist, failedlist = CommandExecutor().Conchoice(commandremovefile)
@@ -491,8 +481,8 @@ class Mainmenu:
         dir_path = os.path.dirname(os.path.realpath(__file__))
         file = "mainscripts/windows/PrivescCheck.ps1"
         path = os.path.join(dir_path, file)
-        command="Import-Module C:\\temp\\PrivescCheck.ps1; Invoke-PrivescCheck -Extended -Report C:\\temp\\PrivescCheck_$($env:COMPUTERNAME) -Format HTML"
-        successlist, failedlist = CommandExecutor().Conchoice(command,path)
+        command="Import-Module C:\\temp\\PrivescCheck.ps1; Invoke-PrivescCheck -Extended -Report 'C:\\temp\\$env:COMPUTERNAME-securityreport' -Format HTML"
+        successlist, failedlist = CommandExecutor().Conchoice(command,path,1)
         CommandExecutor().Getdebug(successlist, failedlist)
     @order(2)
     @menu_option("Windows Security Remediation")
