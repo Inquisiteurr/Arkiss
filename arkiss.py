@@ -172,6 +172,7 @@ class CommandExecutor:
                         print(f"{ip}\t\033[91mFailed\033[0m")
                         failed = (ip, decoded_error)
                     local_file_path = os.path.join(local_reports_dir, script)
+                    print(local_file_path)
                     with open(local_file_path, 'wb') as local_file:
                         conn.retrieveFile('C$', '\\temp\\' + script, local_file, show_progress=True)
                     #c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
