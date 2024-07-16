@@ -161,20 +161,10 @@ class CommandExecutor:
                     local_file_path = os.path.join(local_reports_dir, script)
                     with open(file, 'rb') as file_obj:
                         conn.storeFile('C$', '\\temp\\' + script, file_obj, show_progress=True)
-                    stdout, stderr, rc = c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
-                    if stdout:
-                        print(f"{ip}\t\033[92mSuccess, Execution....\033[0m")
-                    stdout, stderr, rc = c.run_executable("powershell.exe", arguments=command)
-                    decoded_output = stdout.decode('ISO-8859-1')
-                    decoded_error = stderr.decode('ISO-8859-1')
-                    if stdout:
-                        print(f"{ip}\t\033[92mSuccess\033[0m")
-                        success = (ip, decoded_output)
-                        print(local_file_path)
-                        time.sleep(10)
-                    if stderr:
-                        print(f"{ip}\t\033[91mFailed\033[0m")
-                        failed = (ip, decoded_error)
+                    c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
+                    c.run_executable("powershell.exe", arguments=command)
+                    print(local_file_path)
+                    time.sleep(10)
                     with open(local_file_path, 'wb') as local_file:
                         conn.retrieveFile('C$', '\\temp\\' + script, local_file, show_progress=True)
                     #c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
