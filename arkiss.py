@@ -147,7 +147,7 @@ class CommandExecutor:
         c = Client(ip, username=self.username, password=self.password, encrypt=self.encrypt)
         if file != "nofile":
             if "windows" in file:
-                if "battery" in command:
+                if "battery" in file:
                     local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/battery')
                 else:
                     local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/health')
