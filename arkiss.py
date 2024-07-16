@@ -169,8 +169,6 @@ class CommandExecutor:
                         success = (ip, decoded_output)
                     if stderr:
                         failed = (ip, decoded_error)
-                    with open(local_file_path, 'wb') as local_file:
-                        conn.retrieveFile('C$', '\\temp\\' + script, local_file, show_progress=True)
                     #c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
                     c.remove_service()
                     c.disconnect()
@@ -182,23 +180,21 @@ class CommandExecutor:
             try:
                 c.connect()
                 c.create_service()
-                stdout, stderr, rc = c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
-                if stdout:
-                    print(f"{ip}\t\033[92mSuccess, Execution....\033[0m")
+                c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
                 stdout, stderr, rc = c.run_executable("powershell.exe", arguments=command)
                 decoded_output = stdout.decode('ISO-8859-1')
                 decoded_error = stderr.decode('ISO-8859-1')
                 if stdout:
-                    print(f"{ip}\t\033[92mSuccess\033[0m")
                     success = (ip, decoded_output)
                 if stderr:
-                    print(f"{ip}\t\033[91mFailed\033[0m")
                     failed = (ip, decoded_error)
                 c.remove_service()
                 c.disconnect()
             except Exception as e:
                 print(f"{ip}\t\033[91mFailed\033[0m")
                 failed = (ip, str(e))
+        with open(local_file_path, 'wb') as local_file:
+            conn.retrieveFile('C$', '\\temp\\' + script, local_file, show_progress=True)
         return success, failed
 
     def Getlists(self, command, ip, successlist, failedlist,file="nofile"):
