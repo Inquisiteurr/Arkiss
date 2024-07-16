@@ -153,7 +153,7 @@ class CommandExecutor:
         c = Client(ip, username=self.username, password=self.password, encrypt=self.encrypt)
         if file != "nofile":
             if "windows" in file:
-                if "health" in file:
+                if "systeminfo.ps1" in file:
                     local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/health')
                     local_file_path = os.path.join(local_reports_dir, self.extract_file_path(file))
                 try:
@@ -201,8 +201,11 @@ class CommandExecutor:
                 print(f"{ip}\t\033[91mFailed\033[0m")
                 failed = (ip, str(e))
         if local_reports_dir:
+            conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
+            assert conn.connect(ip, 445)
             with open(local_file_path, 'wb') as local_file:
                 conn.retrieveFile('C$', '\\temp\\' + script, local_file, show_progress=True)
+            conn.close()
         return success, failed
 
     def Getlists(self, command, ip, successlist, failedlist,file="nofile"):
