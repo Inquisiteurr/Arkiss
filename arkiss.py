@@ -155,7 +155,8 @@ class CommandExecutor:
             if "windows" in file:
                 if "systeminfo.ps1" in file:
                     local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/health')
-                    local_file_path = os.path.join(local_reports_dir, self.extract_file_path(file))
+                    report = self.extract_file_path(file)
+                    local_file_path = os.path.join(local_reports_dir, report)
                 try:
                     c.connect()
                     c.create_service()
@@ -184,7 +185,8 @@ class CommandExecutor:
             try:
                 if "battery" in command:
                     local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/battery')
-                    local_file_path = os.path.join(local_reports_dir, self.extract_file_path(command))
+                    report = self.extract_file_path(command)
+                    local_file_path = os.path.join(local_reports_dir, report)
                 c.connect()
                 c.create_service()
                 c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
@@ -200,11 +202,11 @@ class CommandExecutor:
             except Exception as e:
                 print(f"{ip}\t\033[91mFailed\033[0m")
                 failed = (ip, str(e))
-        if local_reports_dir:
+        if report:
             conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
             assert conn.connect(ip, 445)
             with open(local_file_path, 'wb') as local_file:
-                conn.retrieveFile('C$', '\\temp\\' + script, local_file, show_progress=True)
+                conn.retrieveFile('C$', '\\temp\\' + report, local_file, show_progress=True)
             conn.close()
         return success, failed
 
