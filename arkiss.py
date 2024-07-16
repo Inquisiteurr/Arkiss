@@ -2,6 +2,7 @@ from prettytable import PrettyTable
 from smb.SMBConnection import SMBConnection
 from pypsexec.client import Client
 import os
+import time
 import inquirer
 import yaml
 import base64
@@ -161,7 +162,13 @@ class CommandExecutor:
                     with open(file, 'rb') as file_obj:
                         conn.storeFile('C$', '\\temp\\' + script, file_obj, show_progress=True)
                     c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
-                    c.run_executable("powershell.exe", arguments=command)
+                    stdout, stderr, rc = c.run_executable("powershell.exe", arguments=command)
+                    decoded_output = stdout.decode('ISO-8859-1')
+                    decoded_error = stderr.decode('ISO-8859-1')
+                    if stdout:
+                        success = (ip, decoded_output)
+                    if stderr:
+                        failed = (ip, decoded_error)
                     with open(local_file_path, 'wb') as local_file:
                         conn.retrieveFile('C$', '\\temp\\' + script, local_file, show_progress=True)
                     #c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
@@ -175,8 +182,18 @@ class CommandExecutor:
             try:
                 c.connect()
                 c.create_service()
-                c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
-                c.run_executable("powershell.exe", arguments=command)
+                stdout, stderr, rc = c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
+                if stdout:
+                    print(f"{ip}\t\033[92mSuccess, Execution....\033[0m")
+                stdout, stderr, rc = c.run_executable("powershell.exe", arguments=command)
+                decoded_output = stdout.decode('ISO-8859-1')
+                decoded_error = stderr.decode('ISO-8859-1')
+                if stdout:
+                    print(f"{ip}\t\033[92mSuccess\033[0m")
+                    success = (ip, decoded_output)
+                if stderr:
+                    print(f"{ip}\t\033[91mFailed\033[0m")
+                    failed = (ip, decoded_error)
                 c.remove_service()
                 c.disconnect()
             except Exception as e:
@@ -398,11 +415,6 @@ class Secondmenu:
             CommandExecutor().Getdebug(successlist, failedlist)
         if choice == 1:
             successlist, failedlist = CommandExecutor().Conchoice(commandbattery)
-            if "battery" in commandbattery:
-                local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/battery')
-                print(local_reports_dir)
-            else:
-                local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/health')
             CommandExecutor().Getdebug(successlist, failedlist)
         if choice == 2:
             successlist, failedlist = CommandExecutor().Conchoice(commandremovefile)
