@@ -176,18 +176,8 @@ class CommandExecutor:
             try:
                 c.connect()
                 c.create_service()
-                stdout, stderr, rc = c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
-                if stdout:
-                    print(f"{ip}\t\033[92mSuccess, Execution....\033[0m")
-                stdout, stderr, rc = c.run_executable("powershell.exe", arguments=command)
-                decoded_output = stdout.decode('ISO-8859-1')
-                decoded_error = stderr.decode('ISO-8859-1')
-                if stdout:
-                    print(f"{ip}\t\033[92mSuccess\033[0m")
-                    success = (ip, decoded_output)
-                if stderr:
-                    print(f"{ip}\t\033[91mFailed\033[0m")
-                    failed = (ip, decoded_error)
+                c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
+                c.run_executable("powershell.exe", arguments=command)
                 c.remove_service()
                 c.disconnect()
             except Exception as e:
