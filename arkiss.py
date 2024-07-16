@@ -8,6 +8,7 @@ import yaml
 import base64
 import inspect
 import socket
+import re
 
 ############################ GLOBALS ############################
 global global_arkiss
@@ -140,17 +141,21 @@ class CommandExecutor:
         self.method = Config().checksetting('global_method')
         self.hostname = Config().checksetting('global_hostname')
         self.encrypt = encrypt
-
+    
+    def extract_file_path(self, string):
+        match = re.search(r'([a-zA-Z]:\\[^"]+)\.html', string)
+        if match:
+            return match.group(1)
+        return None
     def Wincon(self, command, ip, file="nofile"):
         success = None
         failed = None
         c = Client(ip, username=self.username, password=self.password, encrypt=self.encrypt)
         if file != "nofile":
             if "windows" in file:
-                if "battery" in file:
-                    local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/battery')
-                else:
+                if "health" in file:
                     local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/health')
+                    local_file_path = os.path.join(local_reports_dir, self.extract_file_path(file))
                 try:
                     c.connect()
                     c.create_service()
@@ -158,7 +163,6 @@ class CommandExecutor:
                     conn = SMBConnection(self.username, self.password, socket.gethostname(), ip, use_ntlm_v2=True, is_direct_tcp=True)
                     assert conn.connect(ip, 445)
                     script = file.split('/')[-1]
-                    local_file_path = os.path.join(local_reports_dir, script)
                     with open(file, 'rb') as file_obj:
                         conn.storeFile('C$', '\\temp\\' + script, file_obj, show_progress=True)
                     c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
@@ -169,7 +173,7 @@ class CommandExecutor:
                         success = (ip, decoded_output)
                     if stderr:
                         failed = (ip, decoded_error)
-                    #c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
+                    c.run_executable("cmd.exe", arguments=f"/c del C:\\temp\\" + script)
                     c.remove_service()
                     c.disconnect()
                     conn.close()
@@ -178,6 +182,9 @@ class CommandExecutor:
                     failed = (ip, str(e))
         else:
             try:
+                if "battery" in command:
+                    local_reports_dir = os.path.join(os.path.dirname(__file__), 'reports/battery')
+                    local_file_path = os.path.join(local_reports_dir, self.extract_file_path(command))
                 c.connect()
                 c.create_service()
                 c.run_executable("powershell.exe", arguments="Set-ExecutionPolicy Bypass -force")
@@ -193,8 +200,9 @@ class CommandExecutor:
             except Exception as e:
                 print(f"{ip}\t\033[91mFailed\033[0m")
                 failed = (ip, str(e))
-        with open(local_file_path, 'wb') as local_file:
-            conn.retrieveFile('C$', '\\temp\\' + script, local_file, show_progress=True)
+        if local_reports_dir:
+            with open(local_file_path, 'wb') as local_file:
+                conn.retrieveFile('C$', '\\temp\\' + script, local_file, show_progress=True)
         return success, failed
 
     def Getlists(self, command, ip, successlist, failedlist,file="nofile"):
