@@ -2,6 +2,7 @@ from prettytable import PrettyTable
 from smb.SMBConnection import SMBConnection
 from pypsexec.client import Client
 import os
+import time
 import inquirer
 import yaml
 import base64
@@ -170,6 +171,7 @@ class CommandExecutor:
                         print(f"{ip}\t\033[92mSuccess\033[0m")
                         success = (ip, decoded_output)
                         print(local_file_path)
+                        time.sleep(10)
                     if stderr:
                         print(f"{ip}\t\033[91mFailed\033[0m")
                         failed = (ip, decoded_error)
