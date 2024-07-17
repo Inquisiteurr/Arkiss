@@ -286,7 +286,7 @@ class Urgentmenu:
     @order(1)
     @menu_option("Shutdown Computers")
     def Shutdown(self):
-        command = "Stop-Computer"
+        command = "shutdown.exe /s /f /t 0"
         message = "[ Shutdown Computers ] - what should we do ?"
         choicelist = {"shutdown": 0,"Back": 1}
         choice = MenuChoiceGen(choicelist, message)
