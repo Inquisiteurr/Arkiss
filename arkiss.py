@@ -275,7 +275,7 @@ class Urgentmenu:
     @order(0)
     @menu_option("Cut network connection")
     def CutNet(self):
-        command = "Get-NetAdapter | ForEach-Object { Disable-NetAdapter -Name $_.Name }"
+        command = "Get-NetAdapter | ForEach-Object { Disable-NetAdapter -Name $_.Name -Confirm:$false }"
         message = "[ Cut Network Connection ] - what should we do ?"
         choicelist = {"Disable": 0,"Back": 1}
         choice = MenuChoiceGen(choicelist, message)
