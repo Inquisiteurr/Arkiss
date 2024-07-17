@@ -375,9 +375,33 @@ class Secondmenu:
     def AdminManage(self):
         print("Work in progress..")
     @order(4)
-    @menu_option("Force authentication after sleep mode")
+    @menu_option("Set time for sleep mode")
     def AuthSleepMode(self):
-        print("Work in progress..")
+        registrykey = "Set-ItemProperty -Path 'HKEY_USERS\.DEFAULT\Control Panel\Desktop' -Name 'SCRNSAVE.EXE' -Value "
+        message = "[ Duration ] - what should we do ?"
+        choicelist = {"5 minutes": "5","10 minutes": "10", "15 minutes": "15","Back": "0"}
+        choice = MenuChoiceGen(choicelist, message)
+        command = registrykey + choice
+        if choice == "5":
+            successlist, failedlist = CommandExecutor().Conchoice(command)
+            if successlist == 0:
+                return
+            else:
+                CommandExecutor().Getdebug(successlist, failedlist)
+        elif choice == "10":
+            successlist, failedlist = CommandExecutor().Conchoice(command)
+            if successlist == 0:
+                return
+            else:
+                CommandExecutor().Getdebug(successlist, failedlist)
+        elif choice == "15":
+            successlist, failedlist = CommandExecutor().Conchoice(command)
+            if successlist == 0:
+                return
+            else:
+                CommandExecutor().Getdebug(successlist, failedlist)
+        else:
+            return
     @order(5)
     @menu_option("Test the connection/credentials")
     def Contest(self):
